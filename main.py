@@ -16,6 +16,7 @@ Algoritmos:
 Tudo como funções puras retornando novos boards (sem mutar).
 """
 import json
+import os
 import random
 import sys
 from typing import Callable, List, Optional, Tuple
@@ -122,6 +123,70 @@ STRATEGIES: dict = {
     "bee": bee,
     "human": human,
 }
+
+REGISTRY_FILE = "strategies.json"
+_external_registry: dict = {}  # nome -> ref (arquivo:funcao)
+
+
+def _load_registry() -> None:
+    """Carrega estratégias externas registadas do arquivo de disco."""
+    global _external_registry
+    if os.path.exists(REGISTRY_FILE):
+        try:
+            with open(REGISTRY_FILE) as f:
+                _external_registry = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            _external_registry = {}
+
+
+def register_strategy(name: str, ref: str) -> None:
+    """Registra estratégia (name, ref) de forma persistente no disco."""
+    _external_registry[name] = ref
+    with open(REGISTRY_FILE, "w") as f:
+        json.dump(_external_registry, f, indent=2)
+    try:
+        STRATEGIES[name] = load_external(ref)
+    except (ImportError, AttributeError, ValueError):
+        pass
+
+
+def load_external(ref: str) -> Callable:
+    """
+    Carrega função de estratégia externa.
+    Formato: 'arquivo.py:nome_funcao' ou 'modulo:nome_funcao'.
+    Ou nome interno ('naive', 'bee', 'human').
+    Assinatura: fn(board, player, rng) -> Board
+    """
+    import importlib.util
+
+    if ref in STRATEGIES:
+        return STRATEGIES[ref]
+
+    if ":" in ref:
+        path, attr = ref.split(":", 1)
+    else:
+        raise ValueError(
+            f"'{ref}' não é estratégia interna. Use 'arquivo.py:funcao' ou "
+            f"nome interno {list(STRATEGIES)}"
+        )
+
+    spec = importlib.util.spec_from_file_location("external_strat", path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Não carregou módulo: {path}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    fn = getattr(mod, attr, None)
+    if fn is None:
+        raise AttributeError(f"Função '{attr}' não encontrada em {path}")
+    return fn
+
+
+def resolve_strategy(ref: str) -> Tuple[str, Callable]:
+    """Resolve nome interno/registrado ou 'arq.py:fn' → (label, callable)."""
+    if ref in _external_registry:
+        ref = _external_registry[ref]
+    fn = load_external(ref)
+    return getattr(fn, "__name__", ref), fn
 
 
 def render(board: Board) -> str:
@@ -266,12 +331,18 @@ def play_game(p1_fn: Callable, p2_fn: Callable, seed: int = 0) -> dict:
 def compete(name1: str, name2: str, rounds: int, start_player: int = 0,
             seed: int = 42) -> List[dict]:
     """
-    Faz name1 vs name2 por 'rounds' jogos.
+    Faz name1 vs name2 (nomes internos) por 'rounds' jogos.
     start_player=0: X sempre p1. start_player=1: X alterna.
     Usa seed fixa para reprodutibilidade (naive).
     """
     fn1 = STRATEGIES[name1]
     fn2 = STRATEGIES[name2]
+    return compete_callable(fn1, fn2, name1, name2, rounds, start_player, seed)
+
+
+def compete_callable(fn1: Callable, fn2: Callable, label1: str, label2: str,
+                     rounds: int, start_player: int = 0, seed: int = 42) -> List[dict]:
+    """Versão de compete que aceita Callables diretamente (externos ou internos)."""
     results = []
     rng_base = random.Random(seed)
 
@@ -280,12 +351,14 @@ def compete(name1: str, name2: str, rounds: int, start_player: int = 0,
         if start_player == 1:
             if i % 2 == 0:
                 game = play_game(fn1, fn2, seed=actual_seed)
+                game["J1"], game["J2"] = label1, label2
             else:
                 game = play_game(fn2, fn1, seed=actual_seed)
-                game["J1"], game["J2"] = game["J2"], game["J1"]
+                game["J1"], game["J2"] = label1, label2
                 game["V"] = -game["V"]
         else:
             game = play_game(fn1, fn2, seed=actual_seed)
+            game["J1"], game["J2"] = label1, label2
         results.append(game)
     return results
 
@@ -361,16 +434,21 @@ def main() -> None:
         return
 
     if args[0] == "play":
-        opponent = args[1] if len(args) > 1 else "bee"
-        if opponent not in STRATEGIES:
-            print(f"Opponent '{opponent}' não existe. Opções: {list(STRATEGIES)}")
-            return
+        ref = args[1] if len(args) > 1 else "bee"
+        if ref not in STRATEGIES:
+            try:
+                label, fn = resolve_strategy(ref)
+            except (ValueError, ImportError, AttributeError) as e:
+                print(f"Erro estratégia: {e}")
+                return
+        else:
+            fn = STRATEGIES[ref]
         human_first = "--first" in args
 
         if human_first:
-            play_with_view(human, STRATEGIES[opponent], seed=0)
+            play_with_view(human, fn, seed=0)
         else:
-            play_with_view(STRATEGIES[opponent], human, seed=0)
+            play_with_view(fn, human, seed=0)
         return
 
     if args[0] == "view":
@@ -379,13 +457,55 @@ def main() -> None:
         return
 
     if args[0] == "show":
-        name1 = args[1] if len(args) > 1 else "naive"
-        name2 = args[2] if len(args) > 2 else "bee"
-        for n in (name1, name2):
-            if n not in STRATEGIES:
-                print(f"Estratégia '{n}' não existe. Opções: {list(STRATEGIES)}")
-                return
-        play_with_view(STRATEGIES[name1], STRATEGIES[name2], seed=0)
+        ref1 = args[1] if len(args) > 1 else "naive"
+        ref2 = args[2] if len(args) > 2 else "bee"
+        try:
+            label1, fn1 = resolve_strategy(ref1)
+            label2, fn2 = resolve_strategy(ref2)
+        except (ValueError, ImportError, AttributeError) as e:
+            print(f"Erro estratégia: {e}")
+            return
+        play_with_view(fn1, fn2, seed=0)
+        return
+
+    if args[0] == "vs":
+        ref1 = args[1] if len(args) > 1 else "naive"
+        ref2 = args[2] if len(args) > 2 else "bee"
+        rounds = int(args[3]) if len(args) > 3 else 50
+        fmt = args[4] if len(args) > 4 else "txt"
+        try:
+            label1, fn1 = resolve_strategy(ref1)
+            label2, fn2 = resolve_strategy(ref2)
+        except (ValueError, ImportError, AttributeError) as e:
+            print(f"Erro estratégia: {e}")
+            return
+        results = compete_callable(fn1, fn2, label1, label2, rounds=rounds, start_player=1, seed=2025)
+        out = f"results_{label1}_vs_{label2}.{fmt}"
+        if fmt == "json":
+            save_json(results, out)
+        else:
+            save_txt(results, out)
+        print(f"Salvo: {out}")
+        print(f"  {label1} ({ref1}) vs {label2} ({ref2})")
+        for name, s in summarize(results).items():
+            print(f"  {name}: W={s['W']} D={s['D']} L={s['L']}")
+        return
+
+    if args[0] == "register":
+        name = args[1] if len(args) > 1 else None
+        ref = args[2] if len(args) > 2 else None
+        if not name or not ref:
+            print("Uso: python main.py register NOME arq.py:funcao")
+            print(f"Internas: {list(STRATEGIES)}")
+            return
+        try:
+            load_external(ref)
+        except (ValueError, ImportError, AttributeError) as e:
+            print(f"Erro validando: {e}")
+            return
+        register_strategy(name, ref)
+        print(f"Registrada '{name}' -> {ref} (salvo em {REGISTRY_FILE})")
+        print(f"Usar: python main.py vs {name} bee 50")
         return
 
     if args[0] == "test":
@@ -419,12 +539,16 @@ def main() -> None:
 
     print("Uso:")
     print("  demo                          : naive vs bee, 100 jogos -> results_naive_bee.{json,txt}")
-    print("  show N1 N2                    : joga N1 vs N2 vendo tabuleiro a cada jogada")
-    print("  play OPP [--first]            : humano vs OPP (bee/naive); --first = humano X")
-    print("  compete N1 N2 R fmt           : N1 vs N2, R rounds, salva txt|json")
+    print("  show REF1 REF2                : visualiza partida (REF = 'naive'/'bee'/'human' ou 'arq.py:fn')")
+    print("  play REF [--first]            : humano vs REF; --first = humano X primeiro")
+    print("  vs REF1 REF2 R fmt            : torneio externo/interno, R rounds, salva txt|json")
+    print("  compete N1 N2 R fmt           : N1 vs N2 internos, R rounds")
+    print("  register NOME ARQ:FN          : registra estratégia para uso futuro")
     print("  view <arquivo>                : navegador interativo de resultados (n/p/g/q)")
-    print("  test                          : auto-teste de integridade (minimax bee não perde)")
+    print("  test                          : auto-check de integridade")
+    print("  register NOME ARQ:FN          : registra estratégia externa no dicionário STRATEGIES")
 
 
 if __name__ == "__main__":
+    _load_registry()
     main()
