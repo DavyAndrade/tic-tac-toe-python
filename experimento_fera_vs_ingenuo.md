@@ -1,16 +1,27 @@
 # Experimento: fera vs ingenuo
 
-**Rodadas:** 100,000
-**Ordem:** alternada (J1 e J2 trocam posicao)
-**Semente:** 42
-**Tempo:** 1.51s
+**Algoritmos:**
+- `fera` — Jogador 1 (X)
+- `ingenuo` — Jogador 2 (O)
 
-## Resultado
+**Configuracao:**
+- Ordem alternada (J1 e J2 trocam posicao)
+- Semente: 42
 
-| Algoritmo | V (vitorias) | D (derrotas) | E (empates) |
-|-----------|-------------|-------------|-------------|
-| fera | 90020 | 0 | 9980 |
-| ingenuo | 0 | 90020 | 9980 |
+## Resultados progressivos
+
+| Rodadas | V (vitorias) | D (derrotas) | E (empates) | Tempo |
+|---------|-------------|-------------|-------------|-------|
+| 100,000 | 90,020 | 0 | 9,980 | 1.41s |
+| 200,000 | 180,135 | 0 | 19,865 | 2.82s |
+| 300,000 | 270,188 | 0 | 29,812 | 4.29s |
+| 400,000 | 360,206 | 0 | 39,794 | 5.81s |
+| 500,000 | 450,336 | 0 | 49,664 | 7.24s |
+| 600,000 | 540,530 | 0 | 59,470 | 8.83s |
+| 700,000 | 630,668 | 0 | 69,332 | 10.34s |
+| 800,000 | 720,701 | 0 | 79,299 | 11.70s |
+| 900,000 | 810,727 | 0 | 89,273 | 13.36s |
+| 1,000,000 | 900,958 | 0 | 99,042 | 14.76s |
 
 ## Formato de cada partida
 
@@ -26,7 +37,7 @@
 }
 ```
 
-## Amostra (primeiras 5 partidas)
+## Amostra (ultima rodada - 5 partidas)
 
 ```json
 {"id": 1, "j1": "fera", "v": 1, "j2": "ingenuo", "n": 5, "winner": "fera", "t0": 1, "t1": 1, "t2": 1, "t3": -1, "t4": 0, "t5": 0, "t6": 0, "t7": 0, "t8": -1}

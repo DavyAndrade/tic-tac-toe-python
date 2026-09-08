@@ -131,6 +131,17 @@ STRATEGIES: dict = {
     "humano": humano,
 }
 
+
+def load_guloso() -> Callable:
+    """Carrega estrategia guloso de outro_aluno.py."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("outro_aluno", "outro_aluno.py")
+    if spec is None or spec.loader is None:
+        raise ImportError("Nao carregou outro_aluno.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.guloso
+
 REGISTRY_FILE = "strategies.json"
 _external_registry: dict = {}  # nome -> ref (arquivo:funcao)
 

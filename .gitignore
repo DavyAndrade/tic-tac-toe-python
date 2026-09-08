@@ -3,3 +3,4 @@ __pycache__/
 *.pyo
 strategies.json
 results_*.txt
+results_*_*k.json

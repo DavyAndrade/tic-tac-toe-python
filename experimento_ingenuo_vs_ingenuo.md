@@ -1,16 +1,27 @@
 # Experimento: ingenuo vs ingenuo
 
-**Rodadas:** 100,000
-**Ordem:** alternada (J1 e J2 trocam posicao)
-**Semente:** 42
-**Tempo:** 1.76s
+**Algoritmos:**
+- `ingenuo` — Jogador 1 (X)
+- `ingenuo` — Jogador 2 (O)
 
-## Resultado
+**Configuracao:**
+- Ordem alternada (J1 e J2 trocam posicao)
+- Semente: 42
 
-| Algoritmo | V (vitorias) | D (derrotas) | E (empates) |
-|-----------|-------------|-------------|-------------|
-| ingenuo | 87146 | 87146 | 25708 |
-| ingenuo | 87146 | 87146 | 25708 |
+## Resultados progressivos
+
+| Rodadas | V (vitorias) | D (derrotas) | E (empates) | Tempo |
+|---------|-------------|-------------|-------------|-------|
+| 100,000 | 87,146 | 87,146 | 25,708 | 1.74s |
+| 200,000 | 174,565 | 174,565 | 50,870 | 3.58s |
+| 300,000 | 261,953 | 261,953 | 76,094 | 5.31s |
+| 400,000 | 349,500 | 349,500 | 101,000 | 7.09s |
+| 500,000 | 436,892 | 436,892 | 126,216 | 8.92s |
+| 600,000 | 524,113 | 524,113 | 151,774 | 10.77s |
+| 700,000 | 611,558 | 611,558 | 176,884 | 12.63s |
+| 800,000 | 698,843 | 698,843 | 202,314 | 14.36s |
+| 900,000 | 786,136 | 786,136 | 227,728 | 16.31s |
+| 1,000,000 | 873,413 | 873,413 | 253,174 | 18.05s |
 
 ## Formato de cada partida
 
@@ -26,7 +37,7 @@
 }
 ```
 
-## Amostra (primeiras 5 partidas)
+## Amostra (ultima rodada - 5 partidas)
 
 ```json
 {"id": 1, "j1": "ingenuo", "v": 1, "j2": "ingenuo", "n": 7, "winner": "ingenuo", "t0": -1, "t1": 0, "t2": -1, "t3": 1, "t4": 1, "t5": 1, "t6": 0, "t7": 1, "t8": -1}

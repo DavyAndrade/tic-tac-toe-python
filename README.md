@@ -103,12 +103,25 @@ python run_torneio.py fera ingenuo 500000
 
 ## Experimentos
 
+Progressivos de 100k a 1M rodadas (100k passo). Ordem alternada, semente 42.
+
 | experimento | resultado |
 |-------------|-----------|
 | [ingenuo vs ingenuo](experimento_ingenuo_vs_ingenuo.md) | aleatorio vs aleatorio |
 | [ingenuo vs fera](experimento_ingenuo_vs_fera.md) | ingenuo nunca ganha |
 | [fera vs ingenuo](experimento_fera_vs_ingenuo.md) | fera domina |
 | [fera vs fera](experimento_fera_vs_fera.md) | sempre empate |
+| [guloso vs fera](experimento_guloso_vs_fera.md) | guloso (externo) vs fera |
+
+### Adicionando algoritmo externo
+
+```bash
+# Formato: label:arquivo.py:funcao
+python gen_progressivo.py "guloso:outro_aluno.py:guloso" fera
+
+# Ou qualquer arquivo com assinatura fn(board, player, rng) -> Tab
+python gen_progressivo.py "meu_algo:meu.py:minha_funcao" fera
+```
 
 ## Arquivos
 
@@ -116,9 +129,11 @@ python run_torneio.py fera ingenuo 500000
 |---------|-----------|
 | `main.py` | implementacao (funcional, imutavel) |
 | `run_torneio.py` | torneios rapidos em massa |
+| `gen_progressivo.py` | gerador de experimentos progressivos |
 | `test_main.py` | testes unitarios |
 | `outro_aluno.py` | estrategia externa (guloso) |
 | `experimento_*.md` | resultados dos experimentos |
+| `results_*_100k.json` - `results_*_1M.json` | dados brutos |
 | `README.md` | este documento |
 
 ## Testes
