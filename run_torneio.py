@@ -2,15 +2,15 @@
 
 Uso:
   python run_torneio.py                       roda os 3 torneios padrao (1M cada):
-                                                naive(X) vs bee(O), bee(X) vs naive(O),
-                                                naive(X) vs naive(O)
+                                                ingenuo(X) vs fera(O), fera(X) vs ingenuo(O),
+                                                ingenuo(X) vs ingenuo(O)
   python run_torneio.py NOME1 NOME2 [rounds]   roda so NOME1(X) vs NOME2(O)
                                                 rounds default = 1000000
 
 Exemplos:
-  python run_torneio.py naive naive
-  python run_torneio.py bee naive 500000
-  python run_torneio.py naive bee 200000
+  python run_torneio.py ingenuo ingenuo
+  python run_torneio.py fera ingenuo 500000
+  python run_torneio.py ingenuo fera 200000
 """
 import random
 import sys
@@ -20,8 +20,8 @@ import main
 
 
 def simular(fn1, fn2, seed):
-    """Uma partida completa; devolve so (V, N, board) - sem log por jogada."""
-    board = main.empty_board()
+    """Uma partida completa; devolve so (v, n, board) - sem log por jogada."""
+    board = main.tab_vazio()
     rng = random.Random(seed)
     players = ((main.X, fn1), (main.O, fn2))
     move_index = 0
@@ -41,7 +41,7 @@ def torneio(name1: str, name2: str, rounds: int, seed: int, label: str, out_path
     fn1 = main.STRATEGIES[name1]
     fn2 = main.STRATEGIES[name2]
     rng_base = random.Random(seed)
-    matriz = []  # cada linha: (V, N, board_str)
+    matriz = []  # cada linha: (v, n, board_str)
     w = d = l = 0
     t0 = time.perf_counter()
     report_every = max(1, rounds // 100)
@@ -49,7 +49,10 @@ def torneio(name1: str, name2: str, rounds: int, seed: int, label: str, out_path
     for i in range(rounds):
         actual_seed = rng_base.randint(0, 2**31 - 1)
         v, n, board = simular(fn1, fn2, actual_seed)
-        matriz.append((v, n, "".join(board)))
+        board_vals = "".join(
+            "X" if c == main.X else ("O" if c == main.O else ".") for c in board
+        )
+        matriz.append((v, n, board_vals))
         if v == 1:
             w += 1
         elif v == -1:
@@ -70,7 +73,7 @@ def torneio(name1: str, name2: str, rounds: int, seed: int, label: str, out_path
     linhas = [f"{v} {n} {board}" for v, n, board in matriz]
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(f"{name1} (X) vs {name2} (O) - {rounds} jogos\n")
-        f.write("V(1=X venceu,-1=O venceu,0=empate) N board(9 chars, espaco=vazio)\n")
+        f.write("v(1=X venceu,-1=O venceu,0=empate) n board(9 chars, X/O/.)\n")
         f.write("-" * 40 + "\n")
         f.write("\n".join(linhas) + "\n")
         f.write(f"\nSUMARIO: {name1}(X) W={w} D={d} L={l} | {name2}(O) W={l} D={d} L={w}\n")
@@ -95,51 +98,34 @@ def rodar_um(name1: str, name2: str, rounds: int) -> None:
     imprime_resultado(name1, name2, w, d, l)
 
 
-def perguntar_rounds(prompt_label: str, default: int = 1000000) -> int:
-    raw = input(f"{prompt_label} [{default:,}]: ").strip()
-    if not raw:
-        return default
-    try:
-        return int(raw.replace(",", "").replace(".", ""))
-    except ValueError:
-        print(f"Numero invalido, usando default ({default:,}).")
-        return default
-
-
-def rodar_padrao() -> None:
-    r1 = perguntar_rounds("Quantas partidas naive(X) vs bee(O)?")
-    r2 = perguntar_rounds("Quantas partidas bee(X) vs naive(O)?")
-    r3 = perguntar_rounds("Quantas partidas naive(X) vs naive(O)?")
-    print()
-
+def rodar_experimentos() -> None:
+    """Roda os 4 experimentos: ingenuo/fera em todas as combinacoes."""
+    combos = [
+        ("ingenuo", "ingenuo"),
+        ("ingenuo", "fera"),
+        ("fera", "ingenuo"),
+        ("fera", "fera"),
+    ]
+    rounds = 100000
     t0 = time.perf_counter()
-
-    w1, d1, l1 = torneio("naive", "bee", rounds=r1, seed=1001,
-                          label="naive1o-bee2o", out_path="results_naive_first_bee_second.txt")
-
-    w2, d2, l2 = torneio("bee", "naive", rounds=r2, seed=2002,
-                          label="bee1o-naive2o", out_path="results_bee_first_naive_second.txt")
-
-    w3, d3, l3 = torneio("naive", "naive", rounds=r3, seed=3003,
-                          label="naive-vs-naive", out_path="results_naive_vs_naive.txt")
-
+    resultados = {}
+    for n1, n2 in combos:
+        out_path = f"results_{n1}_vs_{n2}.txt"
+        label = f"{n1}-vs-{n2}"
+        w, d, l = torneio(n1, n2, rounds=rounds, seed=42, label=label, out_path=out_path)
+        resultados[(n1, n2)] = (w, d, l)
+        print(f"  {n1} (X): W={w} D={d} L={l}")
+        print(f"  {n2} (O): W={l} D={d} L={w}")
+        print()
     t1 = time.perf_counter()
-    print(f"\nTempo total: {t1 - t0:.2f}s")
-    print()
-    print(f"=== naive primeiro (X), bee segundo (O) - {r1:,} jogos ===")
-    imprime_resultado("naive", "bee", w1, d1, l1)
-    print()
-    print(f"=== bee primeiro (X), naive segundo (O) - {r2:,} jogos ===")
-    imprime_resultado("bee", "naive", w2, d2, l2)
-    print()
-    print(f"=== naive vs naive (mesmo jogador dos dois lados) - {r3:,} jogos ===")
-    imprime_resultado("naive-X", "naive-O", w3, d3, l3)
+    print(f"Tempo total: {t1 - t0:.2f}s")
+    return resultados
 
 
 if __name__ == "__main__":
     args = sys.argv[1:]
     if not args:
-        rodar_padrao()
+        rodar_experimentos()
     elif len(args) == 1:
         print(f"Uso: python run_torneio.py NOME1 NOME2 [rounds]")
         print(f"Estrategias disponiveis: {list(main.STRATEGIES)}")

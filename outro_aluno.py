@@ -1,8 +1,8 @@
 """Estratégia de exemplo: outro aluno pode importar."""
 import random
-from main import Board
+from main import Tab
 
-def greedy(board, player, rng):
+def guloso(board, player, rng):
     """Joga ganhar se pode, senão bloqueia, senão aleatório."""
     from main import get_winner, is_full, get_empty_cells, LINES
     opponent = "O" if player == "X" else "X"

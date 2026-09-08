@@ -1,7 +1,7 @@
 # TicTacToe - Paradigma Funcional/Data-Driven
 
-Implementação em estilo funcional: funções puras recebem um **board imutável** e
-retornam um **novo board**. Board é tupla imutável de 9 posições (índices `0..8`):
+Implementacao em estilo funcional: funcoes puras recebem um **tabuleiro imutavel** e
+retornam um **novo tabuleiro**. Tab e tupla imutavel de 9 posicoes (indices `0..8`):
 
 ```
  0 | 1 | 2
@@ -13,112 +13,116 @@ Valores: `'X'`, `'O'` ou `' '`.
 
 ## Algoritmos
 
-| nome    | função | estratégia |
-|---------|--------|------------|
-| `naive`  | `naive()`  | escolhe jogada aleatória entre células vazias |
-| `bee`    | `bee()`    | algoritmo **minimax** puro — nunca perde (ganha ou empata) |
-| `human`  | `human()`  | lê coordenada `0-8` do input |
+| nome     | funcao     | estrategia                                    |
+|----------|------------|-----------------------------------------------|
+| `ingenuo`  | `ingenuo()`  | escolhe jogada aleatoria entre celulas vazias |
+| `fera`     | `fera()`     | algoritmo **minimax** puro — nunca perde      |
+| `humano`   | `humano()`   | le coordenada `0-8` do input                  |
 
-### Bee (minimax)
+### Fera (minimax)
 
-Busca exaustiva do espaço de jogadas. Avalia terminal:
+Busca exaustiva do espaco de jogadas. Avalia terminal:
 
-- vitória de **X** → score `10 - depth` (ganha mais cedo vale mais)
-- vitória de **O** → score `depth - 10`
+- vitoria de **X** → score `10 - depth` (ganha mais cedo vale mais)
+- vitoria de **O** → score `depth - 10`
 - empate → `0`
 
-X (máximo) e O (mínimo) alternam. Resultado garantido: **bee nunca perde**.
+X (maximo) e O (minimo) alternam. Resultado garantido: **fera nunca perde**.
 
-## API (funções puras)
+## API (funcoes puras)
 
 ```python
-empty_board() -> Board                    # nova tupla vazia
-get_winner(board) -> 'X' | 'O' | None     # vencedor ou None
+tab_vazio() -> Tab                           # nova tupla vazia
+get_winner(board) -> 'X' | 'O' | None        # vencedor ou None
 is_full(board) -> bool
 get_empty_cells(board) -> tuple[int,..]
 minimax(board, player, depth=0) -> (score, cell)
-naive(board, player, rng) -> Board        # jogada aleatória
-bee(board, player, _rng) -> Board         # minimax
-human(board, player, _rng) -> Board       # input
-play_game(p1_fn, p2_fn, seed=0) -> dict   # partida única
+ingenuo(board, player, rng) -> Tab           # jogada aleatoria
+fera(board, player, _rng) -> Tab             # minimax
+humano(board, player, _rng) -> Tab           # input
+play_game(p1_fn, p2_fn, seed=0) -> dict      # partida unica
 compete(name1, name2, rounds, start_player=0) -> list[dict]
 ```
 
-## Formato de resultado (JSON / TXT)
+## Formato de resultado (JSON)
 
 Cada partida produz:
 
 ```json
 {
-  "J1": "naive",          // nome estratégia jogador 1 (joga X)
-  "V": 1,                 // 1=J1 vence, -1=J2 vence, 0=empate
-  "J2": "bee",            // nome estratégia jogador 2 (joga O)
-  "N": 5,                 // número de jogadas até fim
-  "board": [...9 posições],
-  "rounds": 5
+  "id": 1,
+  "j1": "ingenuo",
+  "v": 0,
+  "j2": "fera",
+  "n": 6,
+  "winner": "fera",
+  "t0": -1, "t1": 0, "t2": 1, "t3": 1, "t4": -1,
+  "t5": 0, "t6": 0, "t7": 1, "t8": -1
 }
 ```
 
-`V` (vitória/score):
-- `1`  → **J1** venceu
-- `-1` → **J2** venceu
-- `0`  → empate
-
-Arquivo `.txt` inclui tabela jogada por jogada + sumário `W/D/L` por estratégia.
+| campo     | descricao                                          |
+|-----------|----------------------------------------------------|
+| `id`      | ID sequencial da partida                           |
+| `j1`      | nome do algoritmo Jogador 1 (joga X)               |
+| `v`       | `0` = empate ou J2 venceu, `1` = J1 venceu        |
+| `j2`      | nome do algoritmo Jogador 2 (joga O)               |
+| `n`       | numero de jogadas ate fim                          |
+| `winner`  | nome do vencedor ou `"draw"`                       |
+| `t0`-`t8` | `1` = marca J1, `0` = vazio, `-1` = marca J2     |
 
 ## Uso
 
 ```bash
-# Demo: naive vs bee, 100 partidas, salva results_naive_bee.{json,txt}
+# Demo: ingenuo vs fera, 100 partidas
 python main.py demo
 
-# Visualiza partida jogada por jogada (tabuleiro desenhado)
-python main.py show naive bee       # bee vence visualmente
-python main.py show bee naive
+# Visualiza partida jogada por jogada
+python main.py show ingenuo fera
+python main.py show fera ingenuo
 
-# Humano vs algoritmo (mostra tabuleiro a cada jogada)
-python main.py play bee --first    # humano joga X (primeiro)
-python main.py play naive          # humano joga O (segundo)
-# durante play: tabuleiro desenhado antes de sua jogada, digite 0-8
+# Humano vs algoritmo
+python main.py play fera --first    # humano joga X (primeiro)
+python main.py play ingenuo         # humano joga O (segundo)
 
-# Competição: N1 vs N2, R rounds, formato txt|json
-python main.py compete naive bee 100 json
-python main.py compete bee naive 50 txt
+# Competicao: N1 vs N2, R rounds, formato txt|json
+python main.py compete ingenuo fera 100 json
 
-# Navegador interativo de resultados (n=next p=prev g=log <num> q=quit)
-python main.py view results_naive_bee.json
+# Navegador interativo de resultados
+python main.py view results_ingenuo_fera.json
 
-# Auto-teste: bee não deve perder em nenhuma partida
+# Auto-teste: fera nao deve perder
 python main.py test
 
-# Help
-python main.py
+# Torneios rapidos (4 combinacoes, 100k rodadas)
+python run_torneio.py
+
+# Torneio especifico
+python run_torneio.py fera ingenuo 500000
 ```
 
-## Resultados (demo padrão)
+## Experimentos
 
-```
-Partidas: 100
-  naive: W=0 D=8 L=92
-  bee:   W=92 D=8 L=0
-```
-
-Bee: **nunca perde**. Naive: 0 vitórias (bee sempre empata ou vence).
+| experimento | resultado |
+|-------------|-----------|
+| [ingenuo vs ingenuo](experimento_ingenuo_vs_ingenuo.md) | aleatorio vs aleatorio |
+| [ingenuo vs fera](experimento_ingenuo_vs_fera.md) | ingenuo nunca ganha |
+| [fera vs ingenuo](experimento_fera_vs_ingenuo.md) | fera domina |
+| [fera vs fera](experimento_fera_vs_fera.md) | sempre empate |
 
 ## Arquivos
 
-| arquivo | descrição |
+| arquivo | descricao |
 |---------|-----------|
-| `main.py` | implementação (funcional, imutável) |
-| `test_main.py` | testes unitários (`python -m pytest test_main.py`) |
-| `results_naive_bee.json` | partidas individuais (100 jogos demo) |
-| `results_naive_bee.txt` | partidas + sumário |
-| `results_naive_vs_bee.json`/`.txt` | gerado por `compete` |
+| `main.py` | implementacao (funcional, imutavel) |
+| `run_torneio.py` | torneios rapidos em massa |
+| `test_main.py` | testes unitarios |
+| `outro_aluno.py` | estrategia externa (guloso) |
+| `experimento_*.md` | resultados dos experimentos |
 | `README.md` | este documento |
 
 ## Testes
 
 ```bash
-python -m pytest test_main.py -v    # ou
-python main.py test                   # auto-check integrado
+python -m unittest test_main -v
 ```
