@@ -13,7 +13,8 @@ O fera calcula todas as jogadas possiveis, avaliando vitoria, derrota e empate c
 Projeto funcional em Python puro — funcoes puras, tabuleiros imutaveis, sem frameworks.
 
 Quer testar contra o fera? Clone o repo e rode:
-python main.py play fera
+python main.py play fera          # voce joga O (o fera comeca)
+python main.py play fera --first  # voce joga X (voce comeca)
 
 Boa sorte. Voce vai precisar.
 
