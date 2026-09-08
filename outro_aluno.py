@@ -1,9 +1,9 @@
-"""Estratégia de exemplo: outro aluno pode importar."""
+"""Estrategia de exemplo: outro aluno pode importar."""
 import random
 from main import Tab
 
-def guloso(board, player, rng):
-    """Joga ganhar se pode, senão bloqueia, senão aleatório."""
+def avarento(board, player, rng):
+    """Joga ganhar se pode, senao bloqueia, senao aleatorio."""
     from main import get_winner, is_full, get_empty_cells, LINES
     opponent = "O" if player == "X" else "X"
     cells = get_empty_cells(board)

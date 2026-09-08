@@ -29,21 +29,6 @@ Busca exaustiva do espaco de jogadas. Avalia terminal:
 
 X (maximo) e O (minimo) alternam. Resultado garantido: **fera nunca perde**.
 
-## API (funcoes puras)
-
-```python
-tab_vazio() -> Tab                           # nova tupla vazia
-get_winner(board) -> 'X' | 'O' | None        # vencedor ou None
-is_full(board) -> bool
-get_empty_cells(board) -> tuple[int,..]
-minimax(board, player, depth=0) -> (score, cell)
-ingenuo(board, player, rng) -> Tab           # jogada aleatoria
-fera(board, player, _rng) -> Tab             # minimax
-humano(board, player, _rng) -> Tab           # input
-play_game(p1_fn, p2_fn, seed=0) -> dict      # partida unica
-compete(name1, name2, rounds, start_player=0) -> list[dict]
-```
-
 ## Formato de resultado (JSON)
 
 Cada partida produz:
@@ -51,25 +36,29 @@ Cada partida produz:
 ```json
 {
   "id": 1,
-  "j1": "ingenuo",
+  "j1": 1,
   "v": 0,
-  "j2": "fera",
-  "n": 6,
-  "winner": "fera",
-  "t0": -1, "t1": 0, "t2": 1, "t3": 1, "t4": -1,
-  "t5": 0, "t6": 0, "t7": 1, "t8": -1
+  "j2": 0,
+  "winner": 1,
+  "n": 5,
+  "j1_name": "ingenuo",
+  "j2_name": "fera",
+  "t0": 1, "t1": 1, "t2": 1, "t3": 0, "t4": 0,
+  "t5": 0, "t6": 0, "t7": 0, "t8": 0
 }
 ```
 
-| campo     | descricao                                          |
-|-----------|----------------------------------------------------|
-| `id`      | ID sequencial da partida                           |
-| `j1`      | nome do algoritmo Jogador 1 (joga X)               |
-| `v`       | `0` = empate ou J2 venceu, `1` = J1 venceu        |
-| `j2`      | nome do algoritmo Jogador 2 (joga O)               |
-| `n`       | numero de jogadas ate fim                          |
-| `winner`  | nome do vencedor ou `"draw"`                       |
-| `t0`-`t8` | `1` = marca J1, `0` = vazio, `-1` = marca J2     |
+| campo      | descricao                                             |
+|------------|-------------------------------------------------------|
+| `id`       | ID sequencial da partida                              |
+| `j1`       | `1` = J1 venceu, `0` = nao venceu                    |
+| `v`        | `1` = empate/velha, `0` = sem empate                  |
+| `j2`       | `1` = J2 venceu, `0` = nao venceu                    |
+| `winner`   | `1` = J1, `-1` = J2, `0` = empate                    |
+| `n`        | numero de jogadas ate fim                             |
+| `j1_name`  | nome da estrategia do Jogador 1                       |
+| `j2_name`  | nome da estrategia do Jogador 2                       |
+| `t0`-`t8`  | `1` = marca J1, `0` = vazio, `-1` = marca J2        |
 
 ## Uso
 
@@ -85,7 +74,7 @@ python main.py show fera ingenuo
 python main.py play fera --first    # humano joga X (primeiro)
 python main.py play ingenuo         # humano joga O (segundo)
 
-# Competicao: N1 vs N2, R rounds, formato txt|json
+# Competicao: N1 vs N2, R rounds
 python main.py compete ingenuo fera 100 json
 
 # Navegador interativo de resultados
@@ -94,7 +83,7 @@ python main.py view results_ingenuo_fera.json
 # Auto-teste: fera nao deve perder
 python main.py test
 
-# Torneios rapidos (4 combinacoes, 100k rodadas)
+# Torneios rapidos
 python run_torneio.py
 
 # Torneio especifico
@@ -103,25 +92,28 @@ python run_torneio.py fera ingenuo 500000
 
 ## Experimentos
 
-Progressivos de 100k a 1M rodadas (100k passo). Ordem alternada, semente 42.
+Progressivos de 100k a 1M rodadas (100k passo). Sem alternancia de ordem.
 
 | experimento | resultado |
 |-------------|-----------|
 | [ingenuo vs ingenuo](experimento_ingenuo_vs_ingenuo.md) | aleatorio vs aleatorio |
 | [ingenuo vs fera](experimento_ingenuo_vs_fera.md) | ingenuo nunca ganha |
-| [fera vs ingenuo](experimento_fera_vs_ingenuo.md) | fera domina |
+| [fera vs ingenuo](experimento_fera_vs_ingenuo.md) | fera domina (~99.5%) |
 | [fera vs fera](experimento_fera_vs_fera.md) | sempre empate |
-| [guloso vs fera](experimento_guloso_vs_fera.md) | guloso (externo) vs fera |
 
 ### Adicionando algoritmo externo
 
 ```bash
 # Formato: label:arquivo.py:funcao
-python gen_progressivo.py "guloso:outro_aluno.py:guloso" fera
+python gen_progressivo.py "avarento:outro_aluno.py:avarento" fera
 
 # Ou qualquer arquivo com assinatura fn(board, player, rng) -> Tab
 python gen_progressivo.py "meu_algo:meu.py:minha_funcao" fera
 ```
+
+## Post LinkedIn
+
+[linkedin_post.md](linkedin_post.md) — post pronto para copiar e colar.
 
 ## Arquivos
 
@@ -131,9 +123,9 @@ python gen_progressivo.py "meu_algo:meu.py:minha_funcao" fera
 | `run_torneio.py` | torneios rapidos em massa |
 | `gen_progressivo.py` | gerador de experimentos progressivos |
 | `test_main.py` | testes unitarios |
-| `outro_aluno.py` | estrategia externa (guloso) |
+| `outro_aluno.py` | estrategia externa (avarento) |
 | `experimento_*.md` | resultados dos experimentos |
-| `results_*_100k.json` - `results_*_1M.json` | dados brutos |
+| `linkedin_post.md` | post para LinkedIn |
 | `README.md` | este documento |
 
 ## Testes

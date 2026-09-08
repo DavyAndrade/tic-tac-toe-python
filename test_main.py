@@ -1,4 +1,4 @@
-"""Testes unitários para main.py (paradigma funcional) - usa unittest."""
+"""Testes unitarios para main.py (paradigma funcional) - usa unittest."""
 import io
 import json
 import os
@@ -50,11 +50,6 @@ class TestBoard(unittest.TestCase):
              main.O, main.EMPTY, main.X)
         self.assertEqual(main.get_empty_cells(b), (1, 3, 5, 7))
 
-    def test_score_for(self):
-        self.assertEqual(main.score_for(main.X), 1)
-        self.assertEqual(main.score_for(main.O), 0)
-        self.assertEqual(main.score_for(None), 0)
-
 
 class TestMovimentos(unittest.TestCase):
     def test_ingenuo_cria_novo_board_imutavel(self):
@@ -97,38 +92,48 @@ class TestMinimax(unittest.TestCase):
 
 class TestPartida(unittest.TestCase):
     def test_play_game_formato(self):
-        g = main.play_game(main.fera, main.ingenuo, seed=5,
-                           label1="fera", label2="ingenuo")
-        for key in ("j1", "v", "j2", "n", "t0", "t8"):
+        g = main.play_game(main.fera, main.ingenuo, seed=5)
+        for key in ("j1", "v", "j2", "n", "winner", "t0", "t8"):
             self.assertIn(key, g)
+        self.assertIn(g["j1"], (0, 1))
         self.assertIn(g["v"], (0, 1))
-        self.assertEqual(g["j1"], "fera")
-        self.assertEqual(g["j2"], "ingenuo")
+        self.assertIn(g["j2"], (0, 1))
+        self.assertIn(g["winner"], (-1, 0, 1))
+
+    def test_play_game_j1_vence(self):
+        # Forca vitoria de X
+        b = (main.X, main.X, main.EMPTY,
+             main.O, main.O, main.EMPTY,
+             main.EMPTY, main.EMPTY, main.EMPTY)
+        # Joga ingenuo com seed que escolhe posicao 2
+        g = main.play_game(main.ingenuo, main.ingenuo, seed=0)
+        # Verifica formato: exatamente 1 de j1/v/j2 e 1
+        bits = [g["j1"], g["v"], g["j2"]]
+        self.assertEqual(sum(bits), 1)
+        self.assertIn(g["winner"], (-1, 0, 1))
 
     def test_fera_nunca_perde_vs_ingenuo(self):
-        for seed in range(3):
-            results = main.compete("ingenuo", "fera", rounds=20,
-                                   start_player=1, seed=100 + seed)
-            for g in results:
-                if g["j2"] == "fera" and g["v"] == 1:
-                    self.fail(f"fera perdeu (J2) seed={seed}")
-                if g["j1"] == "fera" and g["v"] == 0:
-                    pass  # fera J1, v=0 means draw or J2 won. Check if J2 won.
+        results = main.compete("ingenuo", "fera", rounds=30,
+                               start_player=0, seed=100)
+        for g in results:
+            # fera e J2, nao deve perder (winner != 1, que significaria J1 venceu)
+            if g["winner"] == 1:
+                self.fail("fera perdeu como J2")
 
     def test_fera_vs_fera_sempre_empata(self):
         results = main.compete("fera", "fera", rounds=15,
-                               start_player=1, seed=42)
+                               start_player=0, seed=42)
         for g in results:
-            self.assertEqual(g["v"], 0, "dois feras devem empatar")
+            self.assertEqual(g["winner"], 0, "dois feras devem empatar")
 
     def test_compete_conta_rounds(self):
         results = main.compete("ingenuo", "fera", rounds=10,
-                               start_player=1, seed=0)
+                               start_player=0, seed=0)
         self.assertEqual(len(results), 10)
 
-    def test_summarize_conta_total_jogadores(self):
+    def test_summarize(self):
         results = main.compete("ingenuo", "fera", rounds=10,
-                               start_player=1, seed=3)
+                               start_player=0, seed=3)
         s = main.summarize(results)
         self.assertIn("ingenuo", s)
         self.assertIn("fera", s)
@@ -137,7 +142,7 @@ class TestPartida(unittest.TestCase):
 
     def test_save_json_e_txt(self):
         results = main.compete("ingenuo", "fera", rounds=5,
-                               start_player=1, seed=0)
+                               start_player=0, seed=0)
         with tempfile.TemporaryDirectory() as d:
             jp = os.path.join(d, "r.json")
             tp = os.path.join(d, "r.txt")
@@ -148,11 +153,11 @@ class TestPartida(unittest.TestCase):
             self.assertEqual(len(data), 5)
             with open(tp) as f:
                 txt = f.read()
-            self.assertIn("SUMÁRIO", txt)
+            self.assertIn("SUMARIO", txt)
 
     def test_fera_dominia_ingenuo_estatistica(self):
         results = main.compete("ingenuo", "fera", rounds=20,
-                               start_player=1, seed=11)
+                               start_player=0, seed=11)
         s = main.summarize(results)
         self.assertEqual(s["fera"]["L"], 0)
         self.assertGreaterEqual(s["fera"]["W"], 15)

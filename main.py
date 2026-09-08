@@ -256,23 +256,23 @@ def play_with_view(fn1: Callable, fn2: Callable, seed: int = 0,
         if winner or is_full(board):
             break
 
-    v = score_for(winner)
     board_vals = [1 if c == X else (-1 if c == O else 0) for c in board]
     if winner == X:
-        win_label = label1
+        j1_bit, v_bit, j2_bit, win_val = 1, 0, 0, 1
     elif winner == O:
-        win_label = label2
+        j1_bit, v_bit, j2_bit, win_val = 0, 0, 1, -1
     else:
-        win_label = "draw"
-    result = {"id": 0, "j1": label1, "v": v, "j2": label2, "n": move_index,
-              "winner": win_label,
+        j1_bit, v_bit, j2_bit, win_val = 0, 1, 0, 0
+    result = {"id": 0, "j1": j1_bit, "v": v_bit, "j2": j2_bit,
+              "n": move_index, "winner": win_val,
+              "j1_name": label1, "j2_name": label2,
               **{f"t{i}": board_vals[i] for i in range(9)}}
-    print(f"Resultado: v={v} ({'J1 vence' if v == 1 else 'J2 vence ou empate'})")
+    print(f"Resultado: winner={win_val} ({'J1 vence' if win_val == 1 else 'J2 vence' if win_val == -1 else 'Empate'})")
     return result
 
 
 def view_games(path: str) -> None:
-    """Navegador interativo de resultados num JSON. tópicos: n, p, q."""
+    """Navegador interativo de resultados num JSON."""
     with open(path) as f:
         results = json.load(f)
     n = len(results)
@@ -280,9 +280,10 @@ def view_games(path: str) -> None:
     while True:
         g = results[i]
         print(f"\n=== Partida {i + 1}/{n} ===")
-        print(f"j1={g['j1']}  v={g['v']}  j2={g['j2']}  n={g['n']}")
-        v_map = {1: "J1 vence", 0: "J2 vence ou empate"}
-        print(f"Status: {v_map.get(g['v'], '??')}")
+        print(f"j1={g['j1']}  v={g['v']}  j2={g['j2']}  n={g['n']}  winner={g['winner']}")
+        w = g["winner"]
+        status = {1: "J1 vence", -1: "J2 vence", 0: "Empate/velha"}
+        print(f"Status: {status.get(w, '??')}")
         board_t = tuple("." if g.get(f"t{idx}", 0) == 0
                         else X if g.get(f"t{idx}", 0) == 1 else O
                         for idx in range(9))
@@ -318,7 +319,6 @@ def play_game(p1_fn: Callable, p2_fn: Callable, seed: int = 0,
               label1: str = "j1", label2: str = "j2") -> dict:
     """
     Um jogo. p1 joga X, p2 joga O.
-    Score v: 1=J1(venceu X), 0=DRAW ou J2(venceu O).
     """
     board = tab_vazio()
     rng = random.Random(seed)
@@ -337,17 +337,16 @@ def play_game(p1_fn: Callable, p2_fn: Callable, seed: int = 0,
             break
 
     final = winner or None
-    v = score_for(final)
     board_vals = [1 if c == X else (-1 if c == O else 0) for c in board]
-    # winner field: strategy name of who won, or "draw"
     if final == X:
-        win_label = label1
+        j1_bit, v_bit, j2_bit, win_val = 1, 0, 0, 1
     elif final == O:
-        win_label = label2
+        j1_bit, v_bit, j2_bit, win_val = 0, 0, 1, -1
     else:
-        win_label = "draw"
-    return {"id": 0, "j1": label1, "v": v, "j2": label2, "n": move_index,
-            "winner": win_label,
+        j1_bit, v_bit, j2_bit, win_val = 0, 1, 0, 0
+    return {"id": 0, "j1": j1_bit, "v": v_bit, "j2": j2_bit,
+            "n": move_index, "winner": win_val,
+            "j1_name": label1, "j2_name": label2,
             **{f"t{i}": board_vals[i] for i in range(9)}}
 
 
@@ -365,46 +364,37 @@ def compete(name1: str, name2: str, rounds: int, start_player: int = 0,
 
 def compete_callable(fn1: Callable, fn2: Callable, label1: str, label2: str,
                      rounds: int, start_player: int = 0, seed: int = 42) -> List[dict]:
-    """Versão de compete que aceita Callables diretamente (externos ou internos)."""
+    """Versao de compete que aceita Callables diretamente (externos ou internos)."""
     results = []
     rng_base = random.Random(seed)
 
     for i in range(rounds):
         actual_seed = rng_base.randint(0, 2**31 - 1)
-        if start_player == 1:
-            if i % 2 == 0:
-                game = play_game(fn1, fn2, seed=actual_seed,
-                                 label1=label1, label2=label2)
-            else:
-                game = play_game(fn2, fn1, seed=actual_seed,
-                                 label1=label2, label2=label1)
-        else:
-            game = play_game(fn1, fn2, seed=actual_seed,
-                             label1=label1, label2=label2)
+        game = play_game(fn1, fn2, seed=actual_seed,
+                         label1=label1, label2=label2)
         game["id"] = i + 1
         results.append(game)
     return results
 
 
 def summarize(results: List[dict]) -> dict:
-    """Conta W/D/L por nome de estratégia. v=0 pode ser draw ou J2 win —
-    usa campo 'winner' se disponível para desambiguar."""
+    """Conta W/D/L por nome de estrategia usando j1_name/j2_name + winner."""
     stats = {}
     for g in results:
-        v = g["v"]
-        j1, j2 = g["j1"], g["j2"]
-        winner = g.get("winner", None)
-        stats.setdefault(j1, {"W": 0, "D": 0, "L": 0})
-        stats.setdefault(j2, {"W": 0, "D": 0, "L": 0})
-        if v == 1:
-            stats[j1]["W"] += 1
-            stats[j2]["L"] += 1
-        elif winner == j2:
-            stats[j2]["W"] += 1
-            stats[j1]["L"] += 1
+        w = g["winner"]  # 1=J1, -1=J2, 0=draw
+        name1 = g.get("j1_name", "j1")
+        name2 = g.get("j2_name", "j2")
+        stats.setdefault(name1, {"W": 0, "D": 0, "L": 0})
+        stats.setdefault(name2, {"W": 0, "D": 0, "L": 0})
+        if w == 1:
+            stats[name1]["W"] += 1
+            stats[name2]["L"] += 1
+        elif w == -1:
+            stats[name2]["W"] += 1
+            stats[name1]["L"] += 1
         else:
-            stats[j1]["D"] += 1
-            stats[j2]["D"] += 1
+            stats[name1]["D"] += 1
+            stats[name2]["D"] += 1
     return stats
 
 
@@ -430,7 +420,7 @@ def save_json(results: List[dict], path: str) -> None:
 
 def save_txt(results: List[dict], path: str) -> None:
     lines = []
-    lines.append("id | v(1=J1,0=J2/empate) | j1 | j2 | n | t0..t8")
+    lines.append("id | j1 | v | j2 | winner | n | t0..t8")
     lines.append("-" * 60)
     for g in results:
         board_str = "".join(
@@ -438,10 +428,10 @@ def save_txt(results: List[dict], path: str) -> None:
             O if g.get(f"t{i}", 0) == -1 else
             "." for i in range(9)
         )
-        lines.append(f"{g['id']} | {g['v']} | {g['j1']} | {g['j2']} | {g['n']} | {board_str}")
+        lines.append(f"{g['id']} | {g['j1']} | {g['v']} | {g['j2']} | {g['winner']} | {g['n']} | {board_str}")
     stats = summarize(results)
     lines.append("")
-    lines.append("SUMÁRIO:")
+    lines.append("SUMARIO:")
     for name, s in stats.items():
         lines.append(f"  {name}: W={s['W']} D={s['D']} L={s['L']}")
     with open(path, "w") as f:
@@ -450,7 +440,7 @@ def save_txt(results: List[dict], path: str) -> None:
 
 def run_matches() -> None:
     """Demonstração: ingenuo vs fera, 100 jogos. Salva resultados."""
-    results = compete("ingenuo", "fera", rounds=100, start_player=1, seed=1234)
+    results = compete("ingenuo", "fera", rounds=100, start_player=0, seed=1234)
     save_json(results, "results_ingenuo_fera.json")
     save_txt(results, "results_ingenuo_fera.txt")
     print(f"Partidas: {len(results)}")
@@ -510,7 +500,7 @@ def main() -> None:
         except (ValueError, ImportError, AttributeError) as e:
             print(f"Erro estratégia: {e}")
             return
-        results = compete_callable(fn1, fn2, label1, label2, rounds=rounds, start_player=1, seed=2025)
+        results = compete_callable(fn1, fn2, label1, label2, rounds=rounds, start_player=0, seed=2025)
         out = f"results_{label1}_vs_{label2}.{fmt}"
         if fmt == "json":
             save_json(results, out)
@@ -541,18 +531,17 @@ def main() -> None:
 
     if args[0] == "test":
         for names in [("ingenuo", "fera"), ("fera", "ingenuo")]:
-            results = compete(names[0], names[1], rounds=30, start_player=1, seed=77)
+            results = compete(names[0], names[1], rounds=30, start_player=0, seed=77)
             fera_loss = 0
             for g in results:
-                # v=1 means J1 won. J1 is fera → fera won (ok).
-                # v=0 means draw or J2 won. If J1 is fera, fera didn't win → loss.
-                # If J2 is fera and v=1, fera (J2) lost.
-                if g["j1"] == 1 and g["v"] == 0:  # fera is J1 and didn't win
+                # winner: 1=J1, -1=J2, 0=draw
+                # In test, fera should never lose
+                if g["winner"] == -1 and names[0] == "fera":  # fera J1 lost
                     fera_loss += 1
-                if g["j2"] == 1 and g["v"] == 1:  # fera is J2 and J1 won
+                if g["winner"] == 1 and names[1] == "fera":   # fera J2 lost
                     fera_loss += 1
             print(f"{names[0]} vs {names[1]}: fera perdeu {fera_loss}/{len(results)}")
-        print("PASS: fera não perde" if fera_loss == 0 else "FAIL: fera perdeu")
+        print("PASS: fera nao perde" if fera_loss == 0 else "FAIL: fera perdeu")
         return
 
     if args[0] == "compete":
@@ -560,7 +549,7 @@ def main() -> None:
         n2 = args[2] if len(args) > 2 else "fera"
         r = int(args[3]) if len(args) > 3 else 100
         fmt = args[4] if len(args) > 4 else "txt"
-        results = compete(n1, n2, rounds=r, start_player=1, seed=2024)
+        results = compete(n1, n2, rounds=r, start_player=0, seed=2024)
         out = f"results_{n1}_vs_{n2}.{fmt}"
         if fmt == "json":
             save_json(results, out)
