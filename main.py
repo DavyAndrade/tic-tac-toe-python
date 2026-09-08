@@ -1,19 +1,19 @@
 """
-TicTacToe - Paradigma funcional/data-driven.
+TicTacToe — Paradigma funcional/data-driven.
 
-Tab: lista imutável de 9 posições, valores 'X', 'O' ou ' '.
-Indíces 0..8 mapeados a:
+Tab: tupla imutavel de 9 posicoes ('X', 'O' ou ' ').
+Indices 0..8:
 
     0 | 1 | 2
     3 | 4 | 5
     6 | 7 | 8
 
 Algoritmos:
-  - ingenuo  : joga aleatoriamente.
-  - fera    : minimax puro; nunca perde (ganha ou empata).
-  - humano  : lê input do usuário.
+  - ingenuo : jogada aleatoria.
+  - fera    : minimax puro; nunca perde.
+  - humano  : input do usuario.
 
-Tudo como funções puras retornando novos boards (sem mutar).
+Funcoes puras: recebem tabuleiro, retornam novo tabuleiro (sem mutar).
 """
 import json
 import os

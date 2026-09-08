@@ -1,6 +1,25 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
-strategies.json
+*.egg-info/
+dist/
+build/
+
+# Resultados gerados
 results_*.txt
 results_*_*k.json
+strategies.json
+
+# LinkedIn (local)
+linkedin_post.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
