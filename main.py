@@ -19,6 +19,7 @@ import json
 import os
 import random
 import sys
+from functools import lru_cache
 from typing import Callable, List, Optional, Tuple
 
 Board = Tuple[str, ...]
@@ -54,11 +55,17 @@ def get_empty_cells(board: Board) -> Tuple[int, ...]:
     return tuple(i for i, v in enumerate(board) if v == EMPTY)
 
 
+@lru_cache(maxsize=None)
 def minimax(board: Board, player: str, depth: int = 0) -> Tuple[int, Optional[int]]:
     """
     Retorna (score, melhor_jogada) para 'player'.
     Score positivo favorece X, negativo favorece O.
     Profundidade desempata empates rápidos (ganha mais cedo).
+
+    Cacheado: função pura sobre (board, player, depth) e o número de
+    posições alcançáveis de tic-tac-toe é pequeno (~5000), então o cache
+    evita recalcular a árvore inteira a cada lance de 'bee' e torna
+    torneios de dezenas de milhares de partidas viáveis no mesmo processo.
     """
     winner = get_winner(board)
     if winner == X:
