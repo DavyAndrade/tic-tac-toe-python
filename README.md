@@ -153,8 +153,9 @@ python run_torneio.py
 python run_torneio.py fera ingenuo 500000
 
 # Gerar experimentos progressivos (100k → 1M)
-python gen_progressivo.py
-python gen_progressivo.py ingenuo fera
+python run_progressivo.py ingenuo fera_basica
+python run_progressivo.py fera_basica ingenuo
+python run_progressivo.py fera_basica fera_basica
 ```
 
 ## Experimentos
@@ -168,13 +169,20 @@ Resultados progressivos de 100k a 1M rodadas, sem alternancia de ordem.
 | fera vs ingenuo | **99.5%** | 0.5% | **0%** | [detalhes](experiments/minimax/fera_vs_ingenuo.md) |
 | fera vs fera | 0% | 100% | 0% | [detalhes](experiments/minimax/fera_vs_fera.md) |
 
+### Basico (if/else)
+
+| combinacao | vence | empata | perde | link |
+|------------|-------|--------|-------|------|
+| ingenuo vs fera_basica | 1.2% | 14.1% | 84.7% | [detalhes](experiments/basic/ingenuo_vs_fera_basica.md) |
+| fera_basica vs ingenuo | 96.0% | 4.0% | 0% | [detalhes](experiments/basic/fera_basica_vs_ingenuo.md) |
+| fera_basica vs fera_basica | 0% | 100% | 0% | [detalhes](experiments/basic/fera_basica_vs_fera_basica.md) |
+
 ### Algoritmo externo
 
 Qualquer funcao com assinatura `fn(board, player, rng) -> Tab`:
 
 ```bash
 # Formato: label:arquivo.py:funcao
-python gen_progressivo.py "avarento:outro_aluno.py:avarento" fera
 python main.py play "avarento:outro_aluno.py:avarento"
 ```
 
@@ -186,11 +194,11 @@ Veja `outro_aluno.py` como exemplo.
 |---------|-----------|
 | `main.py` | implementacao principal |
 | `run_torneio.py` | torneios rapidos em massa |
-| `gen_progressivo.py` | gerador de experimentos progressivos |
-| `test_main.py` | testes unitarios (21 testes) |
+| `run_progressivo.py` | gerador de experimentos progressivos |
+| `test_main.py` | testes unitarios (22 testes) |
 | `outro_aluno.py` | estrategia externa de exemplo |
 | `experiments/minimax/` | resultados e relatorios do minimax |
-| `experiments/basic/` | experimentos legados naive/bee |
+| `experiments/basic/` | resultados da fera basica e experimentos legados |
 | `.gitignore` | arquivos ignorados pelo git |
 
 ## Testes
