@@ -47,11 +47,14 @@ def executar(nome_x: str, nome_o: str, seed: int = 42) -> Path:
         "**Configuracao:**\n"
         f"- X: `{nome_x}`\n"
         f"- O: `{nome_o}`\n"
-        f"- Semente: {seed}\n\n"
+        f"- Semente: {seed}\n"
+        f"- Rodadas: {RODADAS:,}\n"
+        f"- Tempo: {duracao:.2f}s\n\n"
         "## Resultado\n\n"
-        "| Rodadas | V (X) | D (X) | E | Tempo |\n"
-        "|---------|-------|-------|---|-------|\n"
-        f"| {RODADAS:,} | {vitorias:,} | {derrotas:,} | {empates:,} | {duracao:.2f}s |\n",
+        "| Jogador | Estrategia | Venceu | Perdeu | Empatou |\n"
+        "|---------|------------|--------|---------|---------|\n"
+        f"| X | `{nome_x}` | {vitorias:,} | {derrotas:,} | {empates:,} |\n"
+        f"| O | `{nome_o}` | {derrotas:,} | {vitorias:,} | {empates:,} |\n",
         encoding="utf-8",
     )
     return arquivo

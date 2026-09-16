@@ -4,9 +4,12 @@
 - X: `fera_basica`
 - O: `ingenuo`
 - Semente: 42
+- Rodadas: 1,000,000
+- Tempo: 28.74s
 
 ## Resultado
 
-| Rodadas | V (X) | D (X) | E | Tempo |
-|---------|-------|-------|---|-------|
-| 1,000,000 | 960,219 | 0 | 39,781 | 28.74s |
+| Jogador | Estrategia | Venceu | Perdeu | Empatou |
+|---------|------------|--------|---------|---------|
+| X | `fera_basica` | 960,219 | 0 | 39,781 |
+| O | `ingenuo` | 0 | 960,219 | 39,781 |

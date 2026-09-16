@@ -4,9 +4,12 @@
 - X: `fera_basica`
 - O: `fera_basica`
 - Semente: 42
+- Rodadas: 1,000,000
+- Tempo: 58.49s
 
 ## Resultado
 
-| Rodadas | V (X) | D (X) | E | Tempo |
-|---------|-------|-------|---|-------|
-| 1,000,000 | 0 | 0 | 1,000,000 | 58.49s |
+| Jogador | Estrategia | Venceu | Perdeu | Empatou |
+|---------|------------|--------|---------|---------|
+| X | `fera_basica` | 0 | 0 | 1,000,000 |
+| O | `fera_basica` | 0 | 0 | 1,000,000 |
