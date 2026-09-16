@@ -9,6 +9,7 @@ build/
 # Resultados gerados
 results_*.txt
 results_*_*k.json
+results_*.json
 strategies.json
 
 # LinkedIn (local)
