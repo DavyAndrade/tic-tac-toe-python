@@ -1,26 +1,18 @@
 # TicTacToe Agent Notes
 
 ## Verify
-- No package manager, linter, formatter, or typechecker is configured; run from repository root: `python -m unittest test_main -v`.
-- Focus one test with `python -m unittest test_main.TestMinimax.test_minimax_bloqueio_critical`.
-- `python main.py test` is a lightweight behavioral smoke check, not replacement for unit tests.
+- Run from repository root: `python -m unittest test_main -v`.
+- Focus minimax blocking with `python -m unittest test_main.TestMinimax.test_minimax_bloqueio_critical`.
+- `python main.py test` is only a 60-game smoke check; do not use it instead of unit tests.
 
-## Structure
-- `core/board.py` owns immutable board primitives. `algorithms/` houses strategies; each must implement `fn(board, player, rng) -> Tab` and return a new tuple.
-- `main.py` provides the CLI. Strategy imports are reassigned at lines 131‑134; edit `core/` or `algorithms/`, preserving `main` exports used by tests and CLI.
-- Importing `main` triggers Q‑learning policy training (`algorithms/learning.py` calls `treinar()` on import). Keep imports intentional in test/benchmark paths.
+## Architecture
+- Implement board rules in `core/board.py` and strategies in `algorithms/`. Strategy contract: `fn(board, player, rng) -> Tab`; return a new immutable tuple.
+- `main.py` contains compatibility copies, then rebinds public names from `core/` and `algorithms/`. Do not fix duplicated helpers in `main.py`; preserve its exported names for CLI and tests.
+- Importing `main` imports `algorithms.learning`, which trains its Q policy for 10,000 episodes. Keep `main` imports out of lightweight tooling unless needed.
+- External strategy registrations write cwd-relative ignored `strategies.json`; use `python main.py register NAME file.py:function`.
 
-## Runs And Output
-- Run commands from repo root. `strategies.json` is cwd‑relative and ignored by Git.
-- `python run_torneio.py` executes four 100 k tournaments, stores all games in memory, and writes ignored `results_*.txt`. Use explicit names or a smaller round count for quick checks.
-- `python run_progressivo.py X_STRATEGY O_STRATEGY` runs exactly 1 000 000 games, overwriting the markdown report at `experiments/basic/X_vs_O.md`. Use this for full‑scale benchmarking only.
-
-## Experiment Guidance
-- `fer a_basica` now blocks all naïve wins: runs of 1 M games show `ingenuo` wins 0, loses ≈ 882 k, draws ≈ 117 k.
-- When updating or adding strategies, ensure they follow the same `fn(board, player, rng) -> Tab` signature.
-- Do not rely on the fallback minimax in `fera_basica`; it has been removed.
-- To regenerate experiment tables, rerun `run_progressivo.py` with the desired strategies; the markdown files will be rewritten with updated counts and timings.
-
-## Misc
-- `strategies.json` is excluded from version control; keep it in the repo root if custom external strategies are needed.
-- The repository has no CI configuration; manual testing is performed via the commands above.
+## Experiments
+- `python run_torneio.py X_STRATEGY O_STRATEGY ROUNDS` stores every game in memory and writes ignored `results_*.txt`; use a small round count for checks. No arguments run four 100,000-game tournaments.
+- `python run_progressivo.py X_STRATEGY O_STRATEGY` always runs 1,000,000 games in eight processes and overwrites tracked `experiments/basic/` or `experiments/minimax/` markdown. Run only for requested full experiments.
+- Generated `results_*.txt` and `results_*.json` are ignored. Do not force-add them; GitHub rejects the full 1M JSON outputs for size.
+- `fera_basica` is rules-only; do not restore a minimax fallback.
