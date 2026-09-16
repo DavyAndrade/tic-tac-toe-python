@@ -79,6 +79,24 @@ class TestMovimentos(unittest.TestCase):
         cell = next(i for i, c in enumerate(b2) if c != main.EMPTY)
         self.assertIn(cell, (0, 2, 4, 6, 8))
 
+    def test_fera_basica_bloqueia_garfo(self):
+        import random
+        board = (main.X, main.EMPTY, main.EMPTY,
+                 main.EMPTY, main.O, main.EMPTY,
+                 main.EMPTY, main.EMPTY, main.X)
+        result = main.fera_basica(board, main.O, random.Random(0))
+        cell = next(i for i, value in enumerate(result) if value != board[i])
+        self.assertIn(cell, (1, 3, 5, 7))
+
+    def test_fera_basica_forca_resposta_contra_garfo(self):
+        import random
+        board = (main.O, main.EMPTY, main.EMPTY,
+                 main.EMPTY, main.X, main.EMPTY,
+                 main.EMPTY, main.EMPTY, main.X)
+        result = main.fera_basica(board, main.O, random.Random(0))
+        cell = next(i for i, value in enumerate(result) if value != board[i])
+        self.assertIn(cell, (2, 6))
+
 
 class TestMinimax(unittest.TestCase):
     def test_minimax_vitoria_x(self):
