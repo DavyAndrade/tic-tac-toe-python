@@ -22,6 +22,9 @@ import sys
 from functools import lru_cache
 from typing import Callable, List, Optional, Tuple
 
+from algorithms import fera_aprendizado, fera_basica, fera_minimax, ingenuo as ingenuo_strategy, minimax as minimax_strategy
+from core.board import EMPTY, LINES, O, PLAYERS, X, Tab, get_empty_cells, get_winner, is_full, tab_vazio
+
 Tab = Tuple[str, ...]
 
 LINES = (
@@ -125,9 +128,18 @@ def humano(board: Tab, player: str, _rng: random.Random) -> Tab:
         return board[:cell] + (player,) + board[cell + 1:]
 
 
+# Compatibilidade: API antiga continua apontando para módulos separados.
+ingenuo = ingenuo_strategy
+minimax = minimax_strategy
+fera = fera_minimax
+
+
 STRATEGIES: dict = {
     "ingenuo": ingenuo,
+    "fera_basica": fera_basica,
     "fera": fera,
+    "fera_minimax": fera_minimax,
+    "fera_aprendizado": fera_aprendizado,
     "humano": humano,
 }
 

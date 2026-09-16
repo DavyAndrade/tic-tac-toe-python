@@ -19,8 +19,22 @@ Valores: `'X'` (Jogador 1), `'O'` (Jogador 2) ou `' '` (vazio).
 | nome | funcao | estrategia |
 |------|--------|------------|
 | `ingenuo` | `ingenuo()` | jogada aleatoria entre celulas vazias |
-| `fera` | `fera()` | minimax puro — **nunca perde** (ganha ou empata) |
+| `fera_basica` | `fera_basica()` | regras heuristicas com `if/else` |
+| `fera_minimax` / `fera` | `fera_minimax()` | minimax puro — **nunca perde** (ganha ou empata) |
+| `fera_aprendizado` | `fera_aprendizado()` | politica treinada por Q-learning |
 | `humano` | `humano()` | le coordenada `0-8` do input |
+
+Implementacoes ficam separadas por estrategia:
+
+```text
+core/                    # tabuleiro e regras
+algorithms/basic.py      # ingenuo e fera_basica (if/else)
+algorithms/minimax.py    # fera_minimax
+algorithms/learning.py   # fera_aprendizado (Q-learning)
+```
+
+As tres feras usam a mesma assinatura `fn(board, player, rng) -> Tab` e podem
+ser comparadas nos torneios.
 
 ### Fera (minimax)
 
@@ -110,6 +124,10 @@ Cada partida retorna:
 # Demo: ingenuo vs fera, 100 partidas
 python main.py demo
 
+# Comparar feras
+python main.py compete fera_basica fera_minimax 100 txt
+python main.py compete fera_minimax fera_aprendizado 100 txt
+
 # Visualizar partida jogada por jogada
 python main.py show ingenuo fera
 python main.py show fera ingenuo
@@ -124,7 +142,7 @@ python main.py compete ingenuo fera 100 json   # 100 partidas, salva JSON
 python main.py compete fera ingenuo 50 txt     # 50 partidas, salva TXT
 
 # Navegador interativo de resultados
-python main.py view results_ingenuo_fera.json
+python main.py view experiments/minimax/results_ingenuo_vs_fera_1000k.json
 # n(ext) | p(rev) | g(o) | <num> | q(uit)
 
 # Auto-teste: fera nao deve perder
@@ -145,10 +163,10 @@ Resultados progressivos de 100k a 1M rodadas, sem alternancia de ordem.
 
 | combinacao | vence | empata | perde | link |
 |------------|-------|--------|-------|------|
-| ingenuo vs ingenuo | 43.7% | 12.7% | 43.7% | [detalhes](experimento_ingenuo_vs_ingenuo.md) |
-| ingenuo vs fera | **0%** | 19.3% | **80.7%** | [detalhes](experimento_ingenuo_vs_fera.md) |
-| fera vs ingenuo | **99.5%** | 0.5% | **0%** | [detalhes](experimento_fera_vs_ingenuo.md) |
-| fera vs fera | 0% | 100% | 0% | [detalhes](experimento_fera_vs_fera.md) |
+| ingenuo vs ingenuo | 43.7% | 12.7% | 43.7% | [detalhes](experiments/minimax/ingenuo_vs_ingenuo.md) |
+| ingenuo vs fera | **0%** | 19.3% | **80.7%** | [detalhes](experiments/minimax/ingenuo_vs_fera.md) |
+| fera vs ingenuo | **99.5%** | 0.5% | **0%** | [detalhes](experiments/minimax/fera_vs_ingenuo.md) |
+| fera vs fera | 0% | 100% | 0% | [detalhes](experiments/minimax/fera_vs_fera.md) |
 
 ### Algoritmo externo
 
@@ -171,7 +189,8 @@ Veja `outro_aluno.py` como exemplo.
 | `gen_progressivo.py` | gerador de experimentos progressivos |
 | `test_main.py` | testes unitarios (21 testes) |
 | `outro_aluno.py` | estrategia externa de exemplo |
-| `experimento_*.md` | resultados dos experimentos |
+| `experiments/minimax/` | resultados e relatorios do minimax |
+| `experiments/basic/` | experimentos legados naive/bee |
 | `.gitignore` | arquivos ignorados pelo git |
 
 ## Testes

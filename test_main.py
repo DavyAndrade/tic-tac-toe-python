@@ -52,6 +52,12 @@ class TestBoard(unittest.TestCase):
 
 
 class TestMovimentos(unittest.TestCase):
+    def test_feras_tem_mesma_interface(self):
+        import random
+        for strategy in (main.fera_basica, main.fera_minimax, main.fera_aprendizado):
+            board = strategy(main.tab_vazio(), main.X, random.Random(0))
+            self.assertEqual(sum(cell != main.EMPTY for cell in board), 1)
+
     def test_ingenuo_cria_novo_board_imutavel(self):
         import random
         b = main.tab_vazio()
