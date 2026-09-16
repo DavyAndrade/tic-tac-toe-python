@@ -152,7 +152,7 @@ python main.py test
 python run_torneio.py
 python run_torneio.py fera ingenuo 500000
 
-# Gerar experimentos progressivos (100k → 1M)
+# Gerar experimentos de 1M de rodadas sem salvar partidas individuais
 python run_progressivo.py ingenuo fera_basica
 python run_progressivo.py fera_basica ingenuo
 python run_progressivo.py fera_basica fera_basica
@@ -160,7 +160,7 @@ python run_progressivo.py fera_basica fera_basica
 
 ## Experimentos
 
-Resultados progressivos de 100k a 1M rodadas, sem alternancia de ordem.
+Historico do minimax, sem alternancia de ordem.
 
 | combinacao | vence | empata | perde | link |
 |------------|-------|--------|-------|------|
@@ -170,6 +170,9 @@ Resultados progressivos de 100k a 1M rodadas, sem alternancia de ordem.
 | fera vs fera | 0% | 100% | 0% | [detalhes](experiments/minimax/fera_vs_fera.md) |
 
 ### Basico (if/else)
+
+Cada relatório executa somente 1M de partidas e mantém apenas contadores de
+vitórias, derrotas e empates; não salva matriz, TXT ou JSON por partida.
 
 | combinacao | vence | empata | perde | link |
 |------------|-------|--------|-------|------|
@@ -194,7 +197,7 @@ Veja `outro_aluno.py` como exemplo.
 |---------|-----------|
 | `main.py` | implementacao principal |
 | `run_torneio.py` | torneios rapidos em massa |
-| `run_progressivo.py` | gerador de experimentos progressivos |
+| `run_progressivo.py` | gerador de experimentos de 1M sem matriz |
 | `test_main.py` | testes unitarios (22 testes) |
 | `outro_aluno.py` | estrategia externa de exemplo |
 | `experiments/minimax/` | resultados e relatorios do minimax |

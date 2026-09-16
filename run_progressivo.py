@@ -1,4 +1,4 @@
-"""Gera relatórios progressivos para duas estratégias."""
+"""Gera relatório de 1M de partidas sem salvar resultados individuais."""
 import random
 import sys
 import time
@@ -7,7 +7,19 @@ from pathlib import Path
 import main
 
 
-MARCOS = range(100_000, 1_000_001, 100_000)
+RODADAS = 1_000_000
+
+
+def simular(fn_x, fn_o, seed: int):
+    board = main.tab_vazio()
+    rng = random.Random(seed)
+    for rodada in range(9):
+        player, strategy = ((main.X, fn_x), (main.O, fn_o))[rodada % 2]
+        board = strategy(board, player, rng)
+        winner = main.get_winner(board)
+        if winner or main.is_full(board):
+            return winner
+    return None
 
 
 def executar(nome_x: str, nome_o: str, seed: int = 42) -> Path:
@@ -15,37 +27,31 @@ def executar(nome_x: str, nome_o: str, seed: int = 42) -> Path:
     fn_o = main.STRATEGIES[nome_o]
     rng = random.Random(seed)
     vitorias = derrotas = empates = 0
-    linhas = []
     inicio = time.perf_counter()
 
-    for rodada in range(1, max(MARCOS) + 1):
-        resultado = main.play_game(fn_x, fn_o, rng.randrange(2**31), nome_x, nome_o)
-        if resultado["winner"] == 1:
+    for _ in range(RODADAS):
+        winner = simular(fn_x, fn_o, rng.randrange(2**31))
+        if winner == main.X:
             vitorias += 1
-        elif resultado["winner"] == -1:
+        elif winner == main.O:
             derrotas += 1
         else:
             empates += 1
-        if rodada in MARCOS:
-            linhas.append((rodada, vitorias, derrotas, empates, time.perf_counter() - inicio))
 
     destino = Path("experiments") / ("basic" if "fera_basica" in (nome_x, nome_o) else "minimax")
     destino.mkdir(parents=True, exist_ok=True)
     arquivo = destino / f"{nome_x}_vs_{nome_o}.md"
-    tabela = "\n".join(
-        f"| {rodada:,} | {vitorias:,} | {derrotas:,} | {empates:,} | {duracao:.2f}s |"
-        for rodada, vitorias, derrotas, empates, duracao in linhas
-    )
+    duracao = time.perf_counter() - inicio
     arquivo.write_text(
         f"# Experimento: {nome_x} vs {nome_o}\n\n"
         "**Configuracao:**\n"
         f"- X: `{nome_x}`\n"
         f"- O: `{nome_o}`\n"
         f"- Semente: {seed}\n\n"
-        "## Resultados progressivos\n\n"
+        "## Resultado\n\n"
         "| Rodadas | V (X) | D (X) | E | Tempo |\n"
         "|---------|-------|-------|---|-------|\n"
-        f"{tabela}\n",
+        f"| {RODADAS:,} | {vitorias:,} | {derrotas:,} | {empates:,} | {duracao:.2f}s |\n",
         encoding="utf-8",
     )
     return arquivo
