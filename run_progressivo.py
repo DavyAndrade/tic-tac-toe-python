@@ -22,22 +22,39 @@ def simular(fn_x, fn_o, seed: int):
     return None
 
 
+import concurrent.futures
+
+CHUNKS = 8  # number of parallel processes
+
+def _worker_chunk(args):
+    fn_x, fn_o, seed_chunk = args
+    v, d, e = 0, 0, 0
+    rng = random.Random(seed_chunk)
+    # each worker handles an equal share of rounds
+    for _ in range(RODADAS // CHUNKS):
+        winner = simular(fn_x, fn_o, rng.randrange(2**31))
+        if winner == main.X:
+            v += 1
+        elif winner == main.O:
+            d += 1
+        else:
+            e += 1
+    return v, d, e
+
 def executar(nome_x: str, nome_o: str, seed: int = 42) -> Path:
     fn_x = main.STRATEGIES[nome_x]
     fn_o = main.STRATEGIES[nome_o]
-    rng = random.Random(seed)
-    vitorias = derrotas = empates = 0
+    # deterministic seeds for each worker
+    base_rng = random.Random(seed)
+    seeds = [base_rng.randint(0, 2**31 - 1) for _ in range(CHUNKS)]
+    args = [(fn_x, fn_o, s) for s in seeds]
     inicio = time.perf_counter()
-
-    for _ in range(RODADAS):
-        winner = simular(fn_x, fn_o, rng.randrange(2**31))
-        if winner == main.X:
-            vitorias += 1
-        elif winner == main.O:
-            derrotas += 1
-        else:
-            empates += 1
-
+    vitorias = derrotas = empates = 0
+    with concurrent.futures.ProcessPoolExecutor(max_workers=CHUNKS) as executor:
+        for v, d, e in executor.map(_worker_chunk, args):
+            vitorias += v
+            derrotas += d
+            empates += e
     destino = Path("experiments") / ("basic" if "fera_basica" in (nome_x, nome_o) else "minimax")
     destino.mkdir(parents=True, exist_ok=True)
     arquivo = destino / f"{nome_x}_vs_{nome_o}.md"
