@@ -12,7 +12,6 @@ results_*.txt
 results_*_*k.json
 results_*.json
 strategies.json
-experiments/learning/
 
 # LinkedIn (local)
 linkedin_post.md

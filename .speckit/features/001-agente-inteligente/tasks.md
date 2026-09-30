@@ -40,6 +40,6 @@ Ordem TDD (skill `tdd`): teste primeiro, assistir falhar, implementação mínim
 
 - [x] **T20** — Suíte completa: `python -m unittest test_main -v` (SC-001).
 - [x] **T21** — Executar 100 partidas por confronto; conferir linha 100 e gráficos sem inventar dados (SC-004, SC-006, SC-009).
-- [x] **T22** — Atualizar `.gitignore` para datasets completos gerados e manter fixture pequeno versionável.
+- [x] **T22** — Versionar saídas de `experiments/learning/` por enquanto; revisar `.gitignore` antes de rodadas de 1M partidas (decisão do usuário).
 - [ ] **T23** — Commit + push (preferência registrada).
 - [x] **T24** — Atualizar `AGENTS.md` com setup de `matplotlib` via `.venv`.
