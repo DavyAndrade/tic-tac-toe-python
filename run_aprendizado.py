@@ -81,14 +81,15 @@ def gerar_svg(progress_path, svg_path, title) -> Path:
     left, top, right, bottom = 70, 45, 25, 60
     chart_width = width - left - right
     chart_height = height - top - bottom
-    max_match = max((row["partida"] for row in rows), default=1) or 1
+    max_match = max((row["partida"] for row in rows), default=0)
+    match_scale = max_match or 1
     max_count = max(
         (max(row.get("J1", 0), row.get("V", 0), row.get("J2", 0)) for row in rows),
         default=1,
     ) or 1
 
     def point(row, key):
-        x = left + row["partida"] / max_match * chart_width
+        x = left + row["partida"] / match_scale * chart_width
         y = top + chart_height - row.get(key, 0) / max_count * chart_height
         return f"{x:.2f},{y:.2f}"
 
@@ -96,12 +97,31 @@ def gerar_svg(progress_path, svg_path, title) -> Path:
         points = " ".join(point(row, key) for row in rows)
         return f'<polyline fill="none" stroke="{color}" stroke-width="2" points="{points}" />'
 
+    tick_values = [0]
+    if max_match:
+        tick_step = max(1, (max_match + 9) // 10)
+        tick_values = list(range(0, max_match + 1, tick_step))
+        if tick_values[-1] != max_match:
+            tick_values.append(max_match)
+    axis_y = top + chart_height
+    x_ticks = []
+    for tick in tick_values:
+        x = left + tick / match_scale * chart_width
+        x_ticks.extend(
+            (
+                f'<line x1="{x:.2f}" y1="{axis_y}" x2="{x:.2f}" '
+                f'y2="{axis_y + 6}" stroke="#333" />',
+                f'<text x="{x:.2f}" y="{axis_y + 20}" font-size="11" '
+                f'text-anchor="middle">{tick}</text>',
+            )
+        )
+
     transitions = []
     previous_phase = None
     for row in rows:
         phase = row.get("fase")
         if previous_phase is not None and phase != previous_phase:
-            x = left + row["partida"] / max_match * chart_width
+            x = left + row["partida"] / match_scale * chart_width
             transitions.append(
                 f'<line x1="{x:.2f}" y1="{top}" x2="{x:.2f}" '
                 f'y2="{top + chart_height}" stroke="#777" stroke-dasharray="5,5" />'
@@ -117,6 +137,7 @@ def gerar_svg(progress_path, svg_path, title) -> Path:
         f'<line x1="{left}" y1="{top + chart_height}" x2="{width - right}" '
         f'y2="{top + chart_height}" stroke="#333" />',
         f'<line x1="{left}" y1="{top}" x2="{left}" y2="{top + chart_height}" stroke="#333" />',
+        *x_ticks,
         *transitions,
         polyline("J1", "#2563eb"),
         polyline("V", "#6b7280"),

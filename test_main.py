@@ -256,6 +256,28 @@ class TestAprendiz(unittest.TestCase):
             self.assertIn("V", result["svg"].read_text())
             self.assertIn("J2", result["svg"].read_text())
 
+    def test_svg_marca_numeros_das_partidas_no_eixo_x(self):
+        import run_aprendizado
+
+        with tempfile.TemporaryDirectory() as directory:
+            progress_path = os.path.join(directory, "progress.jsonl")
+            svg_path = os.path.join(directory, "progress.svg")
+            with open(progress_path, "w") as file:
+                for partida in (0, 500, 1000):
+                    file.write(json.dumps({
+                        "partida": partida,
+                        "J1": partida,
+                        "V": 0,
+                        "J2": 0,
+                    }) + "\n")
+
+            run_aprendizado.gerar_svg(progress_path, svg_path, "teste")
+            with open(svg_path) as file:
+                svg = file.read()
+
+        for partida in (0, 100, 500, 1000):
+            self.assertIn(f">{partida}</text>", svg)
+
     def test_runner_preserva_q_entre_fases_do_curriculo(self):
         import run_aprendizado
 
