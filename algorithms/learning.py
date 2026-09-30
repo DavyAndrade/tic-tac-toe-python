@@ -127,9 +127,6 @@ def _persistir_episodio(player, winner, reward, history) -> None:
     if episodes_path:
         with episodes_path.open("a", encoding="utf-8") as file:
             file.write(json.dumps(payload, ensure_ascii=False) + "\n")
-    q_path = _PERSISTENCIA_APRENDIZ["q"]
-    if q_path:
-        salvar_q(q_path)
 
 
 def aprendiz(board: Tab, player: str, rng: random.Random) -> Tab:

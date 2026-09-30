@@ -49,7 +49,7 @@ Gerado por `matplotlib` a partir de `progress.jsonl`.
 ## Arquivos
 
 ```
-experiments/learning/aprendiz_vs_ingenuo/
+experiments/learning/rodadas_1000/aprendiz_vs_ingenuo/
 ├── episodes.jsonl    # cada decisao (estado, acao), resultado, recompensa
 ├── progress.jsonl    # linha 0 + 1 linha por partida
 ├── q_table.json      # snapshot da tabela Q (schema_version 1)
@@ -61,7 +61,7 @@ experiments/learning/aprendiz_vs_ingenuo/
 ```bash
 .venv/bin/python run_aprendizado.py --rounds 1000 --scenario aprendiz_vs_ingenuo
 .venv/bin/python run_aprendizado.py \
-  --progress experiments/learning/aprendiz_vs_ingenuo/progress.jsonl \
+  --progress experiments/learning/rodadas_1000/aprendiz_vs_ingenuo/progress.jsonl \
   --partida 1000
 ```
 

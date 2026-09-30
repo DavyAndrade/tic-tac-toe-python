@@ -86,7 +86,7 @@ save_txt(results, path) -> None              # salva TXT
 uv venv .venv
 uv pip install --python .venv/bin/python -r requirements.txt
 .venv/bin/python run_aprendizado.py --rounds 100
-.venv/bin/python run_aprendizado.py --progress experiments/learning/aprendiz_vs_ingenuo/progress.jsonl --partida 100
+.venv/bin/python run_aprendizado.py --progress experiments/learning/rodadas_100/aprendiz_vs_ingenuo/progress.jsonl --partida 100
 ```
 
 ## Formato de resultado

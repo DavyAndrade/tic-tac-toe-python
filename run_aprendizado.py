@@ -102,7 +102,7 @@ def gerar_svg(progress_path, svg_path, title) -> Path:
 
 
 def executar_experimento(name, phases, rounds_per_phase=100, root=DEFAULT_ROOT, seed=42):
-    output = Path(root) / name
+    output = Path(root) / f"rodadas_{rounds_per_phase}" / name
     output.mkdir(parents=True, exist_ok=True)
     episodes_path = output / "episodes.jsonl"
     progress_path = output / "progress.jsonl"
