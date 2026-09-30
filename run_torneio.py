@@ -33,6 +33,7 @@ def simular(fn1, fn2, seed):
         move_index += 1
         if winner or main.is_full(board):
             break
+    main.notify_game_end(players, winner)
     return main.score_for(winner), move_index, board
 
 

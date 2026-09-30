@@ -22,7 +22,7 @@ import sys
 from functools import lru_cache
 from typing import Callable, List, Optional, Tuple
 
-from algorithms import fera_aprendizado, fera_basica, fera_minimax, ingenuo as ingenuo_strategy, minimax as minimax_strategy
+from algorithms import aprendiz, fera_aprendizado, fera_basica, fera_minimax, ingenuo as ingenuo_strategy, minimax as minimax_strategy
 from core.board import EMPTY, LINES, O, PLAYERS, X, Tab, get_empty_cells, get_winner, is_full, tab_vazio
 
 Tab = Tuple[str, ...]
@@ -140,6 +140,7 @@ STRATEGIES: dict = {
     "fera": fera,
     "fera_minimax": fera_minimax,
     "fera_aprendizado": fera_aprendizado,
+    "aprendiz": aprendiz,
     "humano": humano,
 }
 
@@ -246,6 +247,13 @@ def draw_board(board: Tab, cells: tuple = ()) -> None:
     print()
 
 
+def notify_game_end(players: tuple, winner: Optional[str]) -> None:
+    for player, strategy in players:
+        hook = getattr(strategy, "on_game_end", None)
+        if hook:
+            hook(player, winner)
+
+
 def play_with_view(fn1: Callable, fn2: Callable, seed: int = 0,
                     label1: str = "j1", label2: str = "j2") -> dict:
     """Joga partida mostrando tabuleiro antes e depois de cada jogada. P1=X, P2=O."""
@@ -268,6 +276,7 @@ def play_with_view(fn1: Callable, fn2: Callable, seed: int = 0,
         if winner or is_full(board):
             break
 
+    notify_game_end(players, winner)
     board_vals = [1 if c == X else (-1 if c == O else 0) for c in board]
     if winner == X:
         j1_bit, v_bit, j2_bit, win_val = 1, 0, 0, 1
@@ -348,6 +357,7 @@ def play_game(p1_fn: Callable, p2_fn: Callable, seed: int = 0,
         if winner or is_full(board):
             break
 
+    notify_game_end(players, winner)
     final = winner or None
     board_vals = [1 if c == X else (-1 if c == O else 0) for c in board]
     if final == X:

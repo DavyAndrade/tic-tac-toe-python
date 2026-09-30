@@ -6,6 +6,7 @@ import tempfile
 import unittest
 
 import main
+from algorithms import learning
 
 
 class TestBoard(unittest.TestCase):
@@ -72,6 +73,249 @@ class TestMovimentos(unittest.TestCase):
         b2 = main.fera(b, main.X, random.Random(0))
         self.assertEqual(sum(1 for c in b2 if c != main.EMPTY), 1)
         self.assertIn(main.X, b2)
+
+
+class TestAprendiz(unittest.TestCase):
+    def test_resetar_aprendizado_limpa_tabela_e_historicos(self):
+        learning.resetar_aprendizado()
+        learning._Q_APRENDIZ[(main.tab_vazio(), main.X)] = {4: (2.0, 1)}
+        learning._HISTORICO_APRENDIZ[main.X].append(((main.tab_vazio(), main.X), 4))
+
+        learning.resetar_aprendizado()
+
+        self.assertEqual(learning._Q_APRENDIZ, {})
+        self.assertEqual(learning._HISTORICO_APRENDIZ, {main.X: [], main.O: []})
+
+    def test_aprendiz_escolhe_maior_valor_em_estado_conhecido(self):
+        import random
+
+        learning.resetar_aprendizado()
+        board = main.tab_vazio()
+        learning._Q_APRENDIZ[(board, main.X)] = {
+            0: (-1.0, 1),
+            4: (2.0, 1),
+        }
+
+        result = learning.aprendiz(board, main.X, random.Random(0))
+
+        self.assertEqual(result[4], main.X)
+        self.assertEqual(sum(cell != main.EMPTY for cell in result), 1)
+
+    def test_aprendiz_aplica_recompensa_de_vitoria(self):
+        import random
+
+        learning.resetar_aprendizado()
+        board = main.tab_vazio()
+        learning.aprendiz(board, main.X, random.Random(0))
+        state, cell = learning._HISTORICO_APRENDIZ[main.X][0]
+
+        learning.aprendiz.on_game_end(main.X, main.X)
+
+        self.assertEqual(learning._Q_APRENDIZ[state][cell], (2.0, 1))
+        self.assertEqual(learning._HISTORICO_APRENDIZ[main.X], [])
+
+    def test_aprendiz_aplica_empate_derrota_e_media_incremental(self):
+        import random
+
+        learning.resetar_aprendizado()
+        board = main.tab_vazio()
+        learning.aprendiz(board, main.X, random.Random(0))
+        state, cell = learning._HISTORICO_APRENDIZ[main.X][0]
+        learning.aprendiz.on_game_end(main.X, None)
+
+        learning.aprendiz(board, main.X, random.Random(0))
+        learning.aprendiz.on_game_end(main.X, main.X)
+
+        self.assertEqual(learning._Q_APRENDIZ[state][cell], (1.5, 2))
+
+        learning.aprendiz(board, main.O, random.Random(0))
+        state_o, cell_o = learning._HISTORICO_APRENDIZ[main.O][0]
+        learning.aprendiz.on_game_end(main.O, main.X)
+
+        self.assertEqual(learning._Q_APRENDIZ[state_o][cell_o], (-5.0, 1))
+
+    def test_aprendiz_persiste_episodio_em_jsonl(self):
+        import random
+
+        learning.resetar_aprendizado()
+        with tempfile.TemporaryDirectory() as directory:
+            episodes_path = os.path.join(directory, "episodes.jsonl")
+            q_path = os.path.join(directory, "q_table.json")
+            learning.configurar_persistencia(episodes_path, q_path)
+            learning.aprendiz(main.tab_vazio(), main.X, random.Random(0))
+            learning.aprendiz.on_game_end(main.X, main.X)
+            learning.configurar_persistencia(None)
+
+            with open(episodes_path) as file:
+                episode = json.loads(file.readline())
+
+        self.assertEqual(episode["schema_version"], 1)
+        self.assertEqual(episode["player"], main.X)
+        self.assertEqual(episode["reward"], 2)
+        self.assertEqual(len(episode["moves"]), 1)
+
+    def test_aprendiz_salva_e_carrega_tabela_q(self):
+        import random
+
+        learning.resetar_aprendizado()
+        with tempfile.TemporaryDirectory() as directory:
+            q_path = os.path.join(directory, "q_table.json")
+            learning.aprendiz(main.tab_vazio(), main.X, random.Random(0))
+            state, cell = learning._HISTORICO_APRENDIZ[main.X][0]
+            learning.aprendiz.on_game_end(main.X, main.X)
+            learning.salvar_q(q_path)
+            learning.resetar_aprendizado()
+
+            learning.carregar_q(q_path)
+
+            self.assertEqual(learning._Q_APRENDIZ[state][cell], (2.0, 1))
+
+    def test_aprendiz_sem_persistencia_nao_cria_arquivos(self):
+        import random
+
+        learning.resetar_aprendizado()
+        learning.configurar_persistencia(None)
+        with tempfile.TemporaryDirectory() as directory:
+            learning.aprendiz(main.tab_vazio(), main.X, random.Random(0))
+            learning.aprendiz.on_game_end(main.X, main.X)
+
+            self.assertEqual(os.listdir(directory), [])
+
+    def test_play_game_finaliza_historico_do_aprendiz(self):
+        learning.resetar_aprendizado()
+
+        main.play_game(main.fera, learning.aprendiz, seed=0)
+
+        self.assertEqual(learning._HISTORICO_APRENDIZ[main.O], [])
+        self.assertTrue(learning._Q_APRENDIZ)
+
+    def test_play_with_view_finaliza_historico_do_aprendiz(self):
+        import contextlib
+
+        learning.resetar_aprendizado()
+        with contextlib.redirect_stdout(io.StringIO()):
+            main.play_with_view(main.fera, learning.aprendiz, seed=0)
+
+        self.assertEqual(learning._HISTORICO_APRENDIZ[main.O], [])
+
+    def test_run_torneio_finaliza_historico_do_aprendiz(self):
+        import run_torneio
+
+        learning.resetar_aprendizado()
+        run_torneio.simular(main.fera, learning.aprendiz, seed=0)
+
+        self.assertEqual(learning._HISTORICO_APRENDIZ[main.O], [])
+
+    def test_run_progressivo_finaliza_historico_do_aprendiz(self):
+        import run_progressivo
+
+        learning.resetar_aprendizado()
+        run_progressivo.simular(main.fera, learning.aprendiz, seed=0)
+
+        self.assertEqual(learning._HISTORICO_APRENDIZ[main.O], [])
+
+    def test_aprendiz_e_resolvido_pelo_registro_de_estrategias(self):
+        label, strategy = main.resolve_strategy("aprendiz")
+
+        self.assertIn("aprendiz", main.STRATEGIES)
+        self.assertEqual(label, "aprendiz")
+        self.assertIs(strategy, learning.aprendiz)
+
+    def test_consulta_progresso_retorna_partida_solicitada(self):
+        import run_aprendizado
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, "progress.jsonl")
+            with open(path, "w") as file:
+                file.write(json.dumps({"partida": 0, "J1": 0, "V": 0, "J2": 0}) + "\n")
+                file.write(json.dumps({"partida": 1, "J1": 1, "V": 0, "J2": 0}) + "\n")
+
+            result = run_aprendizado.consultar_partida(path, 1)
+            self.assertEqual(result["J1"], 1)
+            with self.assertRaises(KeyError):
+                run_aprendizado.consultar_partida(path, 100)
+
+    def test_runner_gera_progresso_q_e_svg_por_experimento(self):
+        import run_aprendizado
+
+        learning.resetar_aprendizado()
+        with tempfile.TemporaryDirectory() as directory:
+            result = run_aprendizado.executar_experimento(
+                "aprendiz_vs_ingenuo",
+                run_aprendizado.SCENARIOS["aprendiz_vs_ingenuo"],
+                rounds_per_phase=2,
+                root=directory,
+            )
+            progress = run_aprendizado.carregar_progresso(result["progress"])
+
+            self.assertEqual([row["partida"] for row in progress], [0, 1, 2])
+            self.assertTrue(result["episodes"].exists())
+            self.assertTrue(result["q_table"].exists())
+            self.assertTrue(result["svg"].exists())
+            self.assertIn("J1", result["svg"].read_text())
+            self.assertIn("V", result["svg"].read_text())
+            self.assertIn("J2", result["svg"].read_text())
+
+    def test_runner_preserva_q_entre_fases_do_curriculo(self):
+        import run_aprendizado
+
+        scenario = (
+            ("aprendiz", "ingenuo", "ingenuo", "ingenuo"),
+            ("aprendiz", "fera", "fera", "fera"),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            result = run_aprendizado.executar_experimento(
+                "curriculo",
+                scenario,
+                rounds_per_phase=1,
+                root=directory,
+            )
+            progress = run_aprendizado.carregar_progresso(result["progress"])
+            q_table = json.loads(result["q_table"].read_text())
+
+        self.assertEqual(progress[1]["fase"], "ingenuo")
+        self.assertEqual(progress[2]["fase"], "fera")
+        self.assertEqual(progress[2]["partida"], 2)
+        visits = sum(
+            action["visits"]
+            for action in q_table["states"][".........|X"].values()
+        )
+        self.assertEqual(visits, 2)
+
+    def test_runner_novo_experimento_comeca_q_vazio(self):
+        import run_aprendizado
+
+        scenario = run_aprendizado.SCENARIOS["aprendiz_vs_ingenuo"]
+        with tempfile.TemporaryDirectory() as directory:
+            run_aprendizado.executar_experimento(
+                "primeiro", scenario, rounds_per_phase=1, root=directory
+            )
+            result = run_aprendizado.executar_experimento(
+                "segundo", scenario, rounds_per_phase=1, root=directory
+            )
+            q_table = json.loads(result["q_table"].read_text())
+
+        visits = sum(
+            action["visits"]
+            for action in q_table["states"][".........|X"].values()
+        )
+        self.assertEqual(visits, 1)
+
+    def test_runner_executa_diretos_e_curriculos_do_escopo(self):
+        import run_aprendizado
+
+        with tempfile.TemporaryDirectory() as directory:
+            results = run_aprendizado.executar_matriz(
+                rounds_per_phase=1, root=directory
+            )
+
+            self.assertEqual(set(results), set(run_aprendizado.SCENARIOS))
+            for name, phases in run_aprendizado.SCENARIOS.items():
+                progress = run_aprendizado.carregar_progresso(results[name]["progress"])
+                self.assertEqual(progress[-1]["partida"], len(phases))
+                self.assertEqual(progress[0]["J1"], 0)
+                self.assertEqual(progress[0]["V"], 0)
+                self.assertEqual(progress[0]["J2"], 0)
 
     def test_fera_primeiro_turno_joga_otimo(self):
         import random

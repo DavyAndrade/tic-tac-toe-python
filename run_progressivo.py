@@ -13,12 +13,15 @@ RODADAS = 1_000_000
 def simular(fn_x, fn_o, seed: int):
     board = main.tab_vazio()
     rng = random.Random(seed)
+    players = ((main.X, fn_x), (main.O, fn_o))
     for rodada in range(9):
-        player, strategy = ((main.X, fn_x), (main.O, fn_o))[rodada % 2]
+        player, strategy = players[rodada % 2]
         board = strategy(board, player, rng)
         winner = main.get_winner(board)
         if winner or main.is_full(board):
+            main.notify_game_end(players, winner)
             return winner
+    main.notify_game_end(players, None)
     return None
 
 

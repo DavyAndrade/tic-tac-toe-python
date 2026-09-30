@@ -22,6 +22,7 @@ Valores: `'X'` (Jogador 1), `'O'` (Jogador 2) ou `' '` (vazio).
 | `fera_basica` | `fera_basica()` | regras heuristicas com `if/else` |
 | `fera_minimax` / `fera` | `fera_minimax()` | minimax puro — **nunca perde** (ganha ou empata) |
 | `fera_aprendizado` | `fera_aprendizado()` | politica treinada por Q-learning |
+| `aprendiz` | `aprendiz()` | tabela Monte Carlo episodica, inicia vazia e aprende entre partidas |
 | `humano` | `humano()` | le coordenada `0-8` do input |
 
 Implementacoes ficam separadas por estrategia:
@@ -30,7 +31,7 @@ Implementacoes ficam separadas por estrategia:
 core/                    # tabuleiro e regras
 algorithms/basic.py      # ingenuo e fera_basica (if/else)
 algorithms/minimax.py    # fera_minimax
-algorithms/learning.py   # fera_aprendizado (Q-learning)
+algorithms/learning.py   # fera_aprendizado e aprendiz
 ```
 
 As tres feras usam a mesma assinatura `fn(board, player, rng) -> Tab` e podem
@@ -60,6 +61,7 @@ get_empty_cells(board) -> tuple[int, ...]   # indices das celulas vazias
 # Algoritmos
 ingenuo(board, player, rng) -> Tab          # jogada aleatoria
 fera(board, player, _rng) -> Tab            # minimax (ignora rng)
+aprendiz(board, player, rng) -> Tab         # aprende entre partidas
 humano(board, player, _rng) -> Tab          # input do usuario
 
 # Minimax (usado internamente pelo fera)
@@ -76,6 +78,13 @@ score_for(winner) -> int                     # 1=X, 0=O/empate
 summarize(results) -> dict                   # W/D/L por estrategia
 save_json(results, path) -> None             # salva JSON
 save_txt(results, path) -> None              # salva TXT
+```
+
+### Experimentos do agente online
+
+```bash
+python run_aprendizado.py --rounds 100
+python run_aprendizado.py --progress experiments/learning/aprendiz_vs_ingenuo/progress.jsonl --partida 100
 ```
 
 ## Formato de resultado
