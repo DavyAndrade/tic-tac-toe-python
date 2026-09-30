@@ -277,32 +277,7 @@ class TestAprendiz(unittest.TestCase):
 
         for partida in (0, 100, 500, 1000):
             self.assertIn(f">{partida}</text>", svg)
-
-    def test_runner_preserva_q_entre_fases_do_curriculo(self):
-        import run_aprendizado
-
-        scenario = (
-            ("aprendiz", "ingenuo", "ingenuo", "ingenuo"),
-            ("aprendiz", "fera", "fera", "fera"),
-        )
-        with tempfile.TemporaryDirectory() as directory:
-            result = run_aprendizado.executar_experimento(
-                "curriculo",
-                scenario,
-                rounds_per_phase=1,
-                root=directory,
-            )
-            progress = run_aprendizado.carregar_progresso(result["progress"])
-            q_table = json.loads(result["q_table"].read_text())
-
-        self.assertEqual(progress[1]["fase"], "ingenuo")
-        self.assertEqual(progress[2]["fase"], "fera")
-        self.assertEqual(progress[2]["partida"], 2)
-        visits = sum(
-            action["visits"]
-            for action in q_table["states"][".........|X"].values()
-        )
-        self.assertEqual(visits, 2)
+        self.assertIn("matplotlib", svg)
 
     def test_runner_novo_experimento_comeca_q_vazio(self):
         import run_aprendizado
@@ -323,15 +298,19 @@ class TestAprendiz(unittest.TestCase):
         )
         self.assertEqual(visits, 1)
 
-    def test_runner_executa_diretos_e_curriculos_do_escopo(self):
+    def test_runner_executa_os_dois_confrontos_diretos(self):
         import run_aprendizado
 
+        expected = {
+            "aprendiz_vs_ingenuo",
+            "ingenuo_vs_aprendiz",
+        }
         with tempfile.TemporaryDirectory() as directory:
             results = run_aprendizado.executar_matriz(
                 rounds_per_phase=1, root=directory
             )
 
-            self.assertEqual(set(results), set(run_aprendizado.SCENARIOS))
+            self.assertEqual(set(results), expected)
             for name, phases in run_aprendizado.SCENARIOS.items():
                 progress = run_aprendizado.carregar_progresso(results[name]["progress"])
                 self.assertEqual(progress[-1]["partida"], len(phases))

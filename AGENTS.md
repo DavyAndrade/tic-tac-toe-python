@@ -1,8 +1,9 @@
 # TicTacToe Agent Notes
 
 ## Verify
-- Run from repository root: `python -m unittest test_main -v`.
-- Focus minimax blocking with `python -m unittest test_main.TestMinimax.test_minimax_bloqueio_critical`.
+- Prepare graph dependency when `.venv` is absent: `uv venv .venv && uv pip install --python .venv/bin/python -r requirements.txt`.
+- Run from repository root: `.venv/bin/python -m unittest test_main -v`.
+- Focus minimax blocking with `.venv/bin/python -m unittest test_main.TestMinimax.test_minimax_bloqueio_critical`.
 - `python main.py test` is only a 60-game smoke check; do not use it instead of unit tests.
 
 ## Architecture

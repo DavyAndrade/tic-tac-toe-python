@@ -21,25 +21,25 @@ Ordem TDD (skill `tdd`): teste primeiro, assistir falhar, implementação mínim
 - [x] **T9** — Teste: `run_torneio.py` e `run_progressivo.py` notificam o agente; partida seguinte não herda histórico pendente (FR-003). → Integrar runners.
 - [x] **T10** — Exportar `aprendiz` em `algorithms/__init__.py` e registrar em `main.STRATEGIES`; testar `resolve_strategy("aprendiz")` (FR-007).
 
-## Fase 4 — experimentos e currículos
+## Fase 4 — experimentos diretos
 
 - [x] **T11** — Teste: runner reseta agente e cria diretório separado para `aprendiz/ingenuo` e `ingenuo/aprendiz` (FR-011, SC-007).
 - [x] **T12** — Teste: cada progresso inicia em `partida=0` com `J1=0,V=0,J2=0` e acrescenta uma linha cumulativa por partida, incluindo `vencedor` (FR-012, SC-006).
 - [x] **T13** — Teste: consulta retorna estatísticas da partida solicitada e falha claramente para partida inexistente (FR-014, EC-006, EC-007).
 - [x] **T14** — Implementar somente os dois confrontos diretos do escopo inicial; `humano` e demais oponentes ficam fora (FR-011).
-- [x] **T15** — Teste: currículo `ingenuo -> fera` mantém Q e histórico de aprendizado entre fases, mas novo currículo começa zerado (FR-016, FR-018, EC-010, EC-011).
-- [x] **T16** — Teste: currículo `fera -> ingenuo` funciona com agente como J1 e como J2, registrando o ponto de transição e contagens por fase (FR-017, FR-019, SC-008, SC-010).
+- [ ] **T15** — Teste: currículo `ingenuo -> fera` mantém Q e histórico de aprendizado entre fases, mas novo currículo começa zerado (FR-016, FR-018, EC-010, EC-011). — adiado, fase futura.
+- [ ] **T16** — Teste: currículo `fera -> ingenuo` funciona com agente como J1 e como J2, registrando o ponto de transição e contagens por fase (FR-017, FR-019, SC-008, SC-010). — adiado, fase futura.
 
 ## Fase 5 — gráficos
 
-- [x] **T17** — Teste: gerador lê somente `progress.jsonl` e cria um SVG por experimento com linhas `J1`, `V` e `J2` (FR-013, SC-009).
-- [x] **T18** — Gerar gráficos em `experiments/learning/<experimento>/progress.svg`, com marcador de transição para currículos, usando biblioteca padrão.
-- [x] **T19** — Smoke com 5 partidas por experimento: dois diretos + quatro currículos; arquivos JSONL, Q e SVG existem; partida 5 é consultável.
+- [x] **T17** — Teste: gerador lê somente `progress.jsonl` e cria um SVG para cada um dos dois confrontos diretos, com linhas `J1`, `V` e `J2` (FR-013, SC-009).
+- [x] **T18** — Gerar gráficos em `experiments/learning/<experimento>/progress.svg`, com marcador de transição quando houver (caminho mantido para o currículo futuro), usando biblioteca padrão.
+- [x] **T19** — Smoke com 5 partidas nos dois confrontos diretos; arquivos JSONL, Q e SVG existem; partida 5 é consultável.
 
 ## Fase 6 — verificação e entrega
 
 - [x] **T20** — Suíte completa: `python -m unittest test_main -v` (SC-001).
-- [x] **T21** — Executar 100 partidas por fase; conferir linha 100, transições e gráficos sem inventar dados (SC-004, SC-006, SC-009, SC-010).
+- [x] **T21** — Executar 100 partidas por confronto; conferir linha 100 e gráficos sem inventar dados (SC-004, SC-006, SC-009).
 - [x] **T22** — Atualizar `.gitignore` para datasets completos gerados e manter fixture pequeno versionável.
 - [ ] **T23** — Commit + push (preferência registrada).
-- [x] **T24** — Revisar `AGENTS.md`; nenhum gotcha durável novo surgiu.
+- [x] **T24** — Atualizar `AGENTS.md` com setup de `matplotlib` via `.venv`.

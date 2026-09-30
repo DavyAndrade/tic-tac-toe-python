@@ -1,6 +1,5 @@
 """Executa experimentos do aprendiz e gera progresso cumulativo em SVG."""
 import argparse
-import html
 import json
 from pathlib import Path
 
@@ -14,22 +13,6 @@ DEFAULT_ROOT = Path("experiments/learning")
 SCENARIOS = {
     "aprendiz_vs_ingenuo": (("aprendiz", "ingenuo", "direto", "ingenuo"),),
     "ingenuo_vs_aprendiz": (("ingenuo", "aprendiz", "direto", "ingenuo"),),
-    "aprendiz_ingenuo_para_fera": (
-        ("aprendiz", "ingenuo", "ingenuo", "ingenuo"),
-        ("aprendiz", "fera", "fera", "fera"),
-    ),
-    "aprendiz_fera_para_ingenuo": (
-        ("aprendiz", "fera", "fera", "fera"),
-        ("aprendiz", "ingenuo", "ingenuo", "ingenuo"),
-    ),
-    "ingenuo_aprendiz_para_fera": (
-        ("ingenuo", "aprendiz", "ingenuo", "ingenuo"),
-        ("fera", "aprendiz", "fera", "fera"),
-    ),
-    "fera_aprendiz_para_ingenuo": (
-        ("fera", "aprendiz", "fera", "fera"),
-        ("ingenuo", "aprendiz", "ingenuo", "ingenuo"),
-    ),
 }
 
 
@@ -76,81 +59,45 @@ def _write_jsonl(path, rows):
 
 
 def gerar_svg(progress_path, svg_path, title) -> Path:
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
     rows = carregar_progresso(progress_path)
-    width, height = 900, 500
-    left, top, right, bottom = 70, 45, 25, 60
-    chart_width = width - left - right
-    chart_height = height - top - bottom
-    max_match = max((row["partida"] for row in rows), default=0)
-    match_scale = max_match or 1
-    max_count = max(
-        (max(row.get("J1", 0), row.get("V", 0), row.get("J2", 0)) for row in rows),
-        default=1,
-    ) or 1
-
-    def point(row, key):
-        x = left + row["partida"] / match_scale * chart_width
-        y = top + chart_height - row.get(key, 0) / max_count * chart_height
-        return f"{x:.2f},{y:.2f}"
-
-    def polyline(key, color):
-        points = " ".join(point(row, key) for row in rows)
-        return f'<polyline fill="none" stroke="{color}" stroke-width="2" points="{points}" />'
-
+    partidas = [row["partida"] for row in rows]
+    max_match = max(partidas, default=0)
     tick_values = [0]
     if max_match:
         tick_step = max(1, (max_match + 9) // 10)
         tick_values = list(range(0, max_match + 1, tick_step))
         if tick_values[-1] != max_match:
             tick_values.append(max_match)
-    axis_y = top + chart_height
-    x_ticks = []
-    for tick in tick_values:
-        x = left + tick / match_scale * chart_width
-        x_ticks.extend(
-            (
-                f'<line x1="{x:.2f}" y1="{axis_y}" x2="{x:.2f}" '
-                f'y2="{axis_y + 6}" stroke="#333" />',
-                f'<text x="{x:.2f}" y="{axis_y + 20}" font-size="11" '
-                f'text-anchor="middle">{tick}</text>',
-            )
-        )
 
-    transitions = []
-    previous_phase = None
-    for row in rows:
-        phase = row.get("fase")
-        if previous_phase is not None and phase != previous_phase:
-            x = left + row["partida"] / match_scale * chart_width
-            transitions.append(
-                f'<line x1="{x:.2f}" y1="{top}" x2="{x:.2f}" '
-                f'y2="{top + chart_height}" stroke="#777" stroke-dasharray="5,5" />'
-            )
-        previous_phase = phase
-
-    content = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
-        f'viewBox="0 0 {width} {height}">',
-        f'<title>{html.escape(title)}</title>',
-        f'<rect width="100%" height="100%" fill="white" />',
-        f'<text x="{left}" y="25" font-size="18">{html.escape(title)}</text>',
-        f'<line x1="{left}" y1="{top + chart_height}" x2="{width - right}" '
-        f'y2="{top + chart_height}" stroke="#333" />',
-        f'<line x1="{left}" y1="{top}" x2="{left}" y2="{top + chart_height}" stroke="#333" />',
-        *x_ticks,
-        *transitions,
-        polyline("J1", "#2563eb"),
-        polyline("V", "#6b7280"),
-        polyline("J2", "#dc2626"),
-        f'<text x="{left}" y="{height - 20}" font-size="12">Partida</text>',
-        f'<text x="{width - 135}" y="{height - 20}" fill="#2563eb">J1</text>',
-        f'<text x="{width - 105}" y="{height - 20}" fill="#6b7280">V</text>',
-        f'<text x="{width - 75}" y="{height - 20}" fill="#dc2626">J2</text>',
-        "</svg>",
-    ]
     svg_path = Path(svg_path)
     svg_path.parent.mkdir(parents=True, exist_ok=True)
-    svg_path.write_text("\n".join(content), encoding="utf-8")
+    with matplotlib.rc_context({"svg.fonttype": "none"}):
+        figure, axis = plt.subplots(figsize=(9, 5), dpi=100)
+        axis.plot(partidas, [row.get("J1", 0) for row in rows], color="#2563eb", label="J1")
+        axis.plot(partidas, [row.get("V", 0) for row in rows], color="#6b7280", label="V")
+        axis.plot(partidas, [row.get("J2", 0) for row in rows], color="#dc2626", label="J2")
+        previous_phase = None
+        for row in rows:
+            phase = row.get("fase")
+            if previous_phase is not None and phase != previous_phase:
+                axis.axvline(row["partida"], color="#777", linestyle="--", linewidth=0.8)
+            previous_phase = phase
+        axis.set_title(title)
+        axis.set_xlabel("Partida")
+        axis.set_ylabel("Contagem cumulativa")
+        axis.set_xlim(0, max_match or 1)
+        axis.set_xticks(tick_values)
+        axis.set_ylim(bottom=0)
+        axis.grid(axis="y", alpha=0.2)
+        axis.legend()
+        figure.tight_layout()
+        figure.savefig(svg_path, format="svg")
+        plt.close(figure)
     return svg_path
 
 

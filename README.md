@@ -83,8 +83,10 @@ save_txt(results, path) -> None              # salva TXT
 ### Experimentos do agente online
 
 ```bash
-python run_aprendizado.py --rounds 100
-python run_aprendizado.py --progress experiments/learning/aprendiz_vs_ingenuo/progress.jsonl --partida 100
+uv venv .venv
+uv pip install --python .venv/bin/python -r requirements.txt
+.venv/bin/python run_aprendizado.py --rounds 100
+.venv/bin/python run_aprendizado.py --progress experiments/learning/aprendiz_vs_ingenuo/progress.jsonl --partida 100
 ```
 
 ## Formato de resultado
