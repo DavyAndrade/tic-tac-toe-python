@@ -14,7 +14,7 @@ Estado interno do novo agente:
 _Q[(board, player)][cell] = (value, visits)
 _history[X] = [(state, action), ...]
 _history[O] = [(state, action), ...]
-_epsilon = 0.1
+_epsilon = 0.0  # decisão: exploração só pelo desempate aleatório (EC-003)
 ```
 
 Responsabilidades do módulo:
@@ -94,7 +94,7 @@ experiments/learning/
 `q_table.json` é snapshot derivado e versionado:
 
 ```json
-{"schema_version":1,"algorithm":"monte_carlo_q_table","epsilon":0.1,"episodes":1,"states":{}}
+{"schema_version":1,"algorithm":"monte_carlo_q_table","epsilon":0.0,"episodes":1,"states":{}}
 ```
 
 Carga será explícita. Sem `carregar_q`, agente começa zerado. Escrita será opcional para testes e partidas normais, evitando artefatos inesperados.

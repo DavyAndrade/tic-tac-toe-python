@@ -76,6 +76,9 @@ class TestMovimentos(unittest.TestCase):
 
 
 class TestAprendiz(unittest.TestCase):
+    def test_epsilon_zero_por_decisao(self):
+        self.assertEqual(learning._EPSILON_APRENDIZ, 0.0)
+
     def test_resetar_aprendizado_limpa_tabela_e_historicos(self):
         learning.resetar_aprendizado()
         learning._Q_APRENDIZ[(main.tab_vazio(), main.X)] = {4: (2.0, 1)}
@@ -421,6 +424,24 @@ class TestPartida(unittest.TestCase):
         results = main.compete("ingenuo", "fera", rounds=10,
                                start_player=0, seed=0)
         self.assertEqual(len(results), 10)
+
+    def test_progressivo_permite_destino_explícito(self):
+        from pathlib import Path
+
+        import run_progressivo
+
+        self.assertEqual(
+            run_progressivo._pasta_destino("ingenuo", "ingenuo"),
+            Path("experiments") / "minimax",
+        )
+        self.assertEqual(
+            run_progressivo._pasta_destino("ingenuo", "ingenuo", "basic"),
+            Path("experiments") / "basic",
+        )
+        self.assertEqual(
+            run_progressivo._pasta_destino("ingenuo", "fera_basica"),
+            Path("experiments") / "basic",
+        )
 
     def test_summarize(self):
         results = main.compete("ingenuo", "fera", rounds=10,

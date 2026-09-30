@@ -36,7 +36,7 @@ _Q = treinar()
 
 _Q_APRENDIZ = {}
 _HISTORICO_APRENDIZ = {X: [], O: []}
-_EPSILON_APRENDIZ = 0.1
+_EPSILON_APRENDIZ = 0.0
 _EPISODIO_APRENDIZ = 0
 _PERSISTENCIA_APRENDIZ = {"episodes": None, "q": None}
 _CONTEXTO_APRENDIZ = {"experiment": None, "phase": "direto", "opponent": None}

@@ -44,7 +44,13 @@ def _worker_chunk(args):
             e += 1
     return v, d, e
 
-def executar(nome_x: str, nome_o: str, seed: int = 42) -> Path:
+def _pasta_destino(nome_x: str, nome_o: str, destino: str | None = None) -> Path:
+    if destino:
+        return Path("experiments") / destino
+    return Path("experiments") / ("basic" if "fera_basica" in (nome_x, nome_o) else "minimax")
+
+
+def executar(nome_x: str, nome_o: str, seed: int = 42, destino: str | None = None) -> Path:
     fn_x = main.STRATEGIES[nome_x]
     fn_o = main.STRATEGIES[nome_o]
     # deterministic seeds for each worker
@@ -58,9 +64,9 @@ def executar(nome_x: str, nome_o: str, seed: int = 42) -> Path:
             vitorias += v
             derrotas += d
             empates += e
-    destino = Path("experiments") / ("basic" if "fera_basica" in (nome_x, nome_o) else "minimax")
-    destino.mkdir(parents=True, exist_ok=True)
-    arquivo = destino / f"{nome_x}_vs_{nome_o}.md"
+    destino_path = _pasta_destino(nome_x, nome_o, destino)
+    destino_path.mkdir(parents=True, exist_ok=True)
+    arquivo = destino_path / f"{nome_x}_vs_{nome_o}.md"
     duracao = time.perf_counter() - inicio
     arquivo.write_text(
         f"# Experimento: {nome_x} vs {nome_o}\n\n"
@@ -81,10 +87,18 @@ def executar(nome_x: str, nome_o: str, seed: int = 42) -> Path:
 
 
 def main_cli() -> None:
-    nomes = sys.argv[1:] or ["ingenuo", "fera_basica"]
+    args = sys.argv[1:]
+    destino = None
+    if "--destino" in args:
+        index = args.index("--destino")
+        destino = args[index + 1]
+        del args[index:index + 2]
+    nomes = args or ["ingenuo", "fera_basica"]
     if len(nomes) != 2:
-        raise SystemExit("Uso: python run_progressivo.py ESTRATEGIA_X ESTRATEGIA_O")
-    print(executar(*nomes))
+        raise SystemExit(
+            "Uso: python run_progressivo.py ESTRATEGIA_X ESTRATEGIA_O [--destino basic|minimax]"
+        )
+    print(executar(*nomes, destino=destino))
 
 
 if __name__ == "__main__":
