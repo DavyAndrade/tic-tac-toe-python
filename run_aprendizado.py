@@ -58,12 +58,14 @@ def _write_jsonl(path, rows):
             file.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def gerar_svg(progress_path, svg_path, title) -> Path:
+def gerar_svg(progress_path, svg_path, title, j1_name=None, j2_name=None) -> Path:
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
+    label_j1 = f"J1 ({j1_name.capitalize()})" if j1_name else "J1"
+    label_j2 = f"J2 ({j2_name.capitalize()})" if j2_name else "J2"
     rows = carregar_progresso(progress_path)
     partidas = [row["partida"] for row in rows]
     max_match = max(partidas, default=0)
@@ -78,9 +80,9 @@ def gerar_svg(progress_path, svg_path, title) -> Path:
     svg_path.parent.mkdir(parents=True, exist_ok=True)
     with matplotlib.rc_context({"svg.fonttype": "none"}):
         figure, axis = plt.subplots(figsize=(9, 5), dpi=100)
-        axis.plot(partidas, [row.get("J1", 0) for row in rows], color="#2563eb", label="J1")
+        axis.plot(partidas, [row.get("J1", 0) for row in rows], color="#2563eb", label=label_j1)
         axis.plot(partidas, [row.get("V", 0) for row in rows], color="#6b7280", label="V")
-        axis.plot(partidas, [row.get("J2", 0) for row in rows], color="#dc2626", label="J2")
+        axis.plot(partidas, [row.get("J2", 0) for row in rows], color="#dc2626", label=label_j2)
         previous_phase = None
         for row in rows:
             phase = row.get("fase")
@@ -152,7 +154,9 @@ def executar_experimento(name, phases, rounds_per_phase=100, root=DEFAULT_ROOT, 
 
     _write_jsonl(progress_path, rows)
     svg_path = output / "progress.svg"
-    gerar_svg(progress_path, svg_path, name.replace("_", " "))
+    first_j1, first_j2 = phases[0][0], phases[0][1]
+    title = f"J1 ({first_j1.capitalize()}) vs J2 ({first_j2.capitalize()})"
+    gerar_svg(progress_path, svg_path, title, first_j1, first_j2)
     return {
         "directory": output,
         "episodes": episodes_path,

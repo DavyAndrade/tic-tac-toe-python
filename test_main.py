@@ -279,6 +279,28 @@ class TestAprendiz(unittest.TestCase):
             self.assertIn(f">{partida}</text>", svg)
         self.assertIn("matplotlib", svg)
 
+    def test_svg_labels_usam_nome_dos_jogadores(self):
+        import run_aprendizado
+
+        with tempfile.TemporaryDirectory() as directory:
+            progress_path = os.path.join(directory, "progress.jsonl")
+            svg_path = os.path.join(directory, "progress.svg")
+            with open(progress_path, "w") as file:
+                file.write(json.dumps({"partida": 0, "J1": 0, "V": 0, "J2": 0}) + "\n")
+
+            run_aprendizado.gerar_svg(
+                progress_path,
+                svg_path,
+                "J1 (Aprendiz) vs J2 (Ingenuo)",
+                j1_name="aprendiz",
+                j2_name="ingenuo",
+            )
+            with open(svg_path) as file:
+                svg = file.read()
+
+        self.assertIn("J1 (Aprendiz)", svg)
+        self.assertIn("J2 (Ingenuo)", svg)
+
     def test_runner_novo_experimento_comeca_q_vazio(self):
         import run_aprendizado
 
