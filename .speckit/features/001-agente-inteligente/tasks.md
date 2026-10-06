@@ -6,7 +6,7 @@ Ordem TDD (skill `tdd`): teste primeiro, assistir falhar, implementação mínim
 
 - [x] **T1** — Teste: tabela e históricos começam vazios; `resetar_aprendizado()` limpa tudo (FR-001, FR-006, EC-004). → Implementar estado.
 - [x] **T2** — Teste: estado zerado produz jogada válida; ε-greedy explora e escolhe maior valor quando aplicável (FR-004, EC-003, SC-005). → Implementar escolha e registro.
-- [x] **T3** — Teste: callback aplica +2, +1 e −5 ao agente como X e como O; média incremental funciona (FR-002, FR-003, FR-005, EC-002, SC-002). → Implementar atualização.
+- [x] **T3** — Teste: callback aplica +3, +1 e −1 ao agente como X e como O; média incremental funciona (FR-002, FR-003, FR-005, EC-002, SC-002). → Implementar atualização.
 - [x] **T4** — Teste: histórico separado por jogador permite agente como X e O, inclusive em partidas consecutivas (EC-002). → Corrigir isolamento de histórico.
 
 ## Fase 2 — persistência do agente

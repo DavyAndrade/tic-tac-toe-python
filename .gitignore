@@ -15,8 +15,8 @@ strategies.json
 
 # Datasets de 1M (episodes/progress ultrapassam 100MB, limite do GitHub;
 # ficam locais e regeneraveis por seed 42; q_table.json, SVG e relatorio seguem versionados)
-experiments/learning/rodadas_1000000/*/episodes.jsonl
-experiments/learning/rodadas_1000000/*/progress.jsonl
+experiments/learning/*/rodadas_1000000/*/episodes.jsonl
+experiments/learning/*/rodadas_1000000/*/progress.jsonl
 
 # LinkedIn (local)
 linkedin_post.md

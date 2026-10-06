@@ -37,6 +37,7 @@ _Q = treinar()
 _Q_APRENDIZ = {}
 _HISTORICO_APRENDIZ = {X: [], O: []}
 _EPSILON_APRENDIZ = 0.0
+_RECOMPENSAS_APRENDIZ = {"vitoria": 3.0, "empate": 1.0, "derrota": -1.0}
 _EPISODIO_APRENDIZ = 0
 _PERSISTENCIA_APRENDIZ = {"episodes": None, "q": None}
 _CONTEXTO_APRENDIZ = {"experiment": None, "phase": "direto", "opponent": None}
@@ -145,7 +146,12 @@ def aprendiz(board: Tab, player: str, rng: random.Random) -> Tab:
 
 
 def _finalizar_aprendizado(player: str, winner: str | None) -> None:
-    reward = 2 if winner == player else 1 if winner is None else -5
+    if winner is None:
+        reward = _RECOMPENSAS_APRENDIZ["empate"]
+    elif winner == player:
+        reward = _RECOMPENSAS_APRENDIZ["vitoria"]
+    else:
+        reward = _RECOMPENSAS_APRENDIZ["derrota"]
     history = _HISTORICO_APRENDIZ[player]
     for state, cell in history:
         values = _Q_APRENDIZ.setdefault(state, {})
