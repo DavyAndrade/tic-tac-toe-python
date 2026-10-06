@@ -13,8 +13,8 @@ DEFAULT_ROOT = Path("experiments/learning")
 SCENARIOS = {
     "aprendiz_vs_ingenuo": (("aprendiz", "ingenuo", "direto", "ingenuo"),),
     "ingenuo_vs_aprendiz": (("ingenuo", "aprendiz", "direto", "ingenuo"),),
-    "aprendiz_vs_fera": (("aprendiz", "fera", "direto", "fera"),),
-    "fera_vs_aprendiz": (("fera", "aprendiz", "direto", "fera"),),
+    "aprendiz_vs_fera_basica": (("aprendiz", "fera_basica", "direto", "fera_basica"),),
+    "fera_basica_vs_aprendiz": (("fera_basica", "aprendiz", "direto", "fera_basica"),),
 }
 
 
@@ -60,14 +60,18 @@ def _write_jsonl(path, rows):
             file.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
+def _rotulo(nome: str) -> str:
+    return nome.replace("_", " ").capitalize()
+
+
 def gerar_svg(progress_path, svg_path, title, j1_name=None, j2_name=None) -> Path:
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    label_j1 = f"J1 ({j1_name.capitalize()})" if j1_name else "J1"
-    label_j2 = f"J2 ({j2_name.capitalize()})" if j2_name else "J2"
+    label_j1 = f"J1 ({_rotulo(j1_name)})" if j1_name else "J1"
+    label_j2 = f"J2 ({_rotulo(j2_name)})" if j2_name else "J2"
     rows = carregar_progresso(progress_path)
     partidas = [row["partida"] for row in rows]
     max_match = max(partidas, default=0)
@@ -157,7 +161,7 @@ def executar_experimento(name, phases, rounds_per_phase=100, root=DEFAULT_ROOT, 
     _write_jsonl(progress_path, rows)
     svg_path = output / "progress.svg"
     first_j1, first_j2 = phases[0][0], phases[0][1]
-    title = f"J1 ({first_j1.capitalize()}) vs J2 ({first_j2.capitalize()})"
+    title = f"J1 ({_rotulo(first_j1)}) vs J2 ({_rotulo(first_j2)})"
     gerar_svg(progress_path, svg_path, title, first_j1, first_j2)
     return {
         "directory": output,

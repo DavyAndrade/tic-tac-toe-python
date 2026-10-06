@@ -294,15 +294,15 @@ class TestAprendiz(unittest.TestCase):
             run_aprendizado.gerar_svg(
                 progress_path,
                 svg_path,
-                "J1 (Aprendiz) vs J2 (Ingenuo)",
+                "titulo",
                 j1_name="aprendiz",
-                j2_name="ingenuo",
+                j2_name="fera_basica",
             )
             with open(svg_path) as file:
                 svg = file.read()
 
-        self.assertIn("J1 (Aprendiz)", svg)
-        self.assertIn("J2 (Ingenuo)", svg)
+        self.assertIn(">J1 (Aprendiz)<", svg)
+        self.assertIn(">J2 (Fera basica)<", svg)
 
     def test_runner_novo_experimento_comeca_q_vazio(self):
         import run_aprendizado
@@ -329,8 +329,8 @@ class TestAprendiz(unittest.TestCase):
         expected = {
             "aprendiz_vs_ingenuo",
             "ingenuo_vs_aprendiz",
-            "aprendiz_vs_fera",
-            "fera_vs_aprendiz",
+            "aprendiz_vs_fera_basica",
+            "fera_basica_vs_aprendiz",
         }
         with tempfile.TemporaryDirectory() as directory:
             results = run_aprendizado.executar_matriz(

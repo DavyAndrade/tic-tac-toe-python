@@ -108,13 +108,13 @@ Quatro experimentos independentes, cada um começando com Q vazio:
 ```text
 aprendiz vs ingenuo
 ingenuo  vs aprendiz
-aprendiz vs fera
-fera     vs aprendiz
+aprendiz vs fera_basica
+fera_basica vs aprendiz
 ```
 
 Currículos de treinamento ficam para fase futura.
 
-`fera` é o nome canônico do minimax (`fera_minimax`). `fera_aprendizado` é a estratégia Q pré-treinada existente e fica fora deste escopo; não representa o agente novo zerado. `fera_basica`, outros algoritmos e `humano` ficam para fase posterior.
+`fera` é o nome canônico do minimax (`fera_minimax`). `fera_aprendizado` é a estratégia Q pré-treinada existente e fica fora deste escopo; não representa o agente novo zerado. `humano` e outros algoritmos ficam para fase posterior.
 
 Cada execução produz seu próprio diretório, dataset, snapshot Q, estatísticas e gráfico. Nenhuma execução compartilha Q com outra.
 
