@@ -46,7 +46,7 @@ versao); a amostra de 100k e a referencia confiavel.
 
 ## Grafico
 
-`rodadas_1000_eps0/ingenuo_vs_aprendiz/progress.svg` — series `J1 (Ingenuo)` /
+`progress.svg` — series `J1 (Ingenuo)` /
 `V` / `J2 (Aprendiz)` por partida. Gerado por `matplotlib` a partir de
 `progress.jsonl`.
 
@@ -57,7 +57,8 @@ experiments/learning/rodadas_1000_eps0/ingenuo_vs_aprendiz/
 ├── episodes.jsonl    # cada decisao (estado, acao), resultado, recompensa
 ├── progress.jsonl    # linha 0 + 1 linha por partida (1,001 linhas)
 ├── q_table.json      # snapshot da tabela Q (schema_version 1)
-└── progress.svg      # grafico acumulado
+├── progress.svg      # grafico acumulado
+└── ingenuo_vs_aprendiz.md    # este relatorio
 ```
 
 ## Reproduzir e consultar

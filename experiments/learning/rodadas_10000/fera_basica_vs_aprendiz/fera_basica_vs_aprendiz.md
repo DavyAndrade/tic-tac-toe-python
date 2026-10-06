@@ -50,7 +50,7 @@ nova so ocorre em estados nunca visitados.
 
 ## Grafico
 
-`rodadas_10000/fera_basica_vs_aprendiz/progress.svg` — series
+`progress.svg` — series
 `J1 (Fera basica)` / `V` / `J2 (Aprendiz)` por partida. Gerado por
 `matplotlib` a partir de `progress.jsonl`.
 
@@ -61,7 +61,8 @@ experiments/learning/rodadas_10000/fera_basica_vs_aprendiz/
 ├── episodes.jsonl    # cada decisao (estado, acao), resultado, recompensa
 ├── progress.jsonl    # linha 0 + 1 linha por partida (10,001 linhas)
 ├── q_table.json      # snapshot da tabela Q (schema_version 1)
-└── progress.svg      # grafico acumulado
+├── progress.svg      # grafico acumulado
+└── fera_basica_vs_aprendiz.md    # este relatorio
 ```
 
 ## Reproduzir e consultar

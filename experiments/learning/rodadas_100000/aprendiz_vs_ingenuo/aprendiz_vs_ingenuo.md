@@ -46,7 +46,7 @@ jogadas aleatorias para sempre) — teto estrutural, nao falta de aprendizado.
 
 ## Grafico
 
-`rodadas_100000/aprendiz_vs_ingenuo/progress.svg` — series J1/V/J2 por
+`progress.svg` — series J1/V/J2 por
 partida, eixo X numerado. Gerado por `matplotlib` a partir de `progress.jsonl`.
 
 ## Arquivos
@@ -56,7 +56,8 @@ experiments/learning/rodadas_100000/aprendiz_vs_ingenuo/
 ├── episodes.jsonl    # 29M — cada decisao (estado, acao), resultado, recompensa
 ├── progress.jsonl    # 18M — linha 0 + 1 linha por partida (100,001 linhas)
 ├── q_table.json      # snapshot da tabela Q (schema_version 1)
-└── progress.svg      # grafico acumulado
+├── progress.svg      # grafico acumulado
+└── aprendiz_vs_ingenuo.md    # este relatorio
 ```
 
 ## Reproduzir e consultar
@@ -70,4 +71,4 @@ experiments/learning/rodadas_100000/aprendiz_vs_ingenuo/
 
 Execucao deterministica (seed 42): regenera identico. Versao de 1,000
 rodadas preservada em `rodadas_1000/` e documentada em
-`aprendiz_vs_ingenuo.md`.
+`rodadas_1000/aprendiz_vs_ingenuo/aprendiz_vs_ingenuo.md`.

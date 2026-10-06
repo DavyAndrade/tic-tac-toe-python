@@ -54,7 +54,7 @@ visitados.
 
 ## Grafico
 
-`rodadas_10000/aprendiz_vs_fera_basica/progress.svg` — series
+`progress.svg` — series
 `J1 (Aprendiz)` / `V` / `J2 (Fera basica)` por partida. Gerado por
 `matplotlib` a partir de `progress.jsonl`.
 
@@ -65,7 +65,8 @@ experiments/learning/rodadas_10000/aprendiz_vs_fera_basica/
 ├── episodes.jsonl    # cada decisao (estado, acao), resultado, recompensa
 ├── progress.jsonl    # linha 0 + 1 linha por partida (10,001 linhas)
 ├── q_table.json      # snapshot da tabela Q (schema_version 1)
-└── progress.svg      # grafico acumulado
+├── progress.svg      # grafico acumulado
+└── aprendiz_vs_fera_basica.md    # este relatorio
 ```
 
 ## Reproduzir e consultar

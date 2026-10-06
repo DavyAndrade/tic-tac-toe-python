@@ -36,7 +36,7 @@ Dados: `experiments/learning/rodadas_100000/ingenuo_vs_aprendiz/`
 
 Leitura: em O o aprendizado e mais lento que em X — comeca em 80% e sobe
 gradualmente ate 95-96% por volta da partida 60,000. A curva em
-`rodadas_100000/ingenuo_vs_aprendiz/progress.svg` mostra a virada: J1 lidera
+`progress.svg` mostra a virada: J1 lidera
 no inicio, mas J2 ultrapassa o acumulado na partida 1,679 e nunca mais perde.
 
 ## Tabela Q final
@@ -47,7 +47,7 @@ no inicio, mas J2 ultrapassa o acumulado na partida 1,679 e nunca mais perde.
 
 ## Grafico
 
-`rodadas_100000/ingenuo_vs_aprendiz/progress.svg` — series J1/V/J2 por
+`progress.svg` — series J1/V/J2 por
 partida, eixo X numerado. Gerado por `matplotlib` a partir de `progress.jsonl`.
 
 ## Arquivos
@@ -57,7 +57,8 @@ experiments/learning/rodadas_100000/ingenuo_vs_aprendiz/
 ├── episodes.jsonl    # 29M — cada decisao (estado, acao), resultado, recompensa
 ├── progress.jsonl    # 18M — linha 0 + 1 linha por partida (100,001 linhas)
 ├── q_table.json      # snapshot da tabela Q (schema_version 1)
-└── progress.svg      # grafico acumulado
+├── progress.svg      # grafico acumulado
+└── ingenuo_vs_aprendiz.md    # este relatorio
 ```
 
 ## Reproduzir e consultar
@@ -71,4 +72,4 @@ experiments/learning/rodadas_100000/ingenuo_vs_aprendiz/
 
 Execucao deterministica (seed 42): regenera identico. Versao de 1,000
 rodadas preservada em `rodadas_1000/` e documentada em
-`ingenuo_vs_aprendiz.md`.
+`rodadas_1000/ingenuo_vs_aprendiz/ingenuo_vs_aprendiz.md`.

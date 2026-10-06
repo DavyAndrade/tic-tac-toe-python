@@ -52,7 +52,7 @@ aleatoria fixa, o agente concentra as jogadas em poucas linhas.
 
 ## Grafico
 
-`rodadas_100000_eps0/aprendiz_vs_ingenuo/progress.svg` — series `J1 (Aprendiz)` /
+`progress.svg` — series `J1 (Aprendiz)` /
 `V` / `J2 (Ingenuo)` por partida. Gerado por `matplotlib` a partir de
 `progress.jsonl`.
 
@@ -63,7 +63,8 @@ experiments/learning/rodadas_100000_eps0/aprendiz_vs_ingenuo/
 ├── episodes.jsonl    # 30M — cada decisao (estado, acao), resultado, recompensa
 ├── progress.jsonl    # 18M — linha 0 + 1 linha por partida (100,001 linhas)
 ├── q_table.json      # snapshot da tabela Q (schema_version 1)
-└── progress.svg      # grafico acumulado
+├── progress.svg      # grafico acumulado
+└── aprendiz_vs_ingenuo.md    # este relatorio
 ```
 
 ## Reproduzir e consultar

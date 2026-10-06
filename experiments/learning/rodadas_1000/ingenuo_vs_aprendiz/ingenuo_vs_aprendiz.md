@@ -54,7 +54,8 @@ experiments/learning/rodadas_1000/ingenuo_vs_aprendiz/
 ├── episodes.jsonl    # cada decisao (estado, acao), resultado, recompensa
 ├── progress.jsonl    # linha 0 + 1 linha por partida
 ├── q_table.json      # snapshot da tabela Q (schema_version 1)
-└── progress.svg      # grafico acumulado
+├── progress.svg      # grafico acumulado
+└── ingenuo_vs_aprendiz.md    # este relatorio
 ```
 
 ## Reproduzir e consultar
