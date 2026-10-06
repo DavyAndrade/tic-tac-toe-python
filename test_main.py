@@ -339,7 +339,7 @@ class TestAprendiz(unittest.TestCase):
         self.assertEqual(variant["directory"].parent.name, "rodadas_1_eps0")
         self.assertNotEqual(base["directory"], variant["directory"])
 
-    def test_runner_executa_os_quatro_confrontos_diretos(self):
+    def test_runner_executa_todos_os_confrontos_diretos(self):
         import run_aprendizado
 
         expected = {
@@ -347,6 +347,7 @@ class TestAprendiz(unittest.TestCase):
             "ingenuo_vs_aprendiz",
             "aprendiz_vs_fera_basica",
             "fera_basica_vs_aprendiz",
+            "aprendiz_vs_aprendiz",
         }
         with tempfile.TemporaryDirectory() as directory:
             results = run_aprendizado.executar_matriz(

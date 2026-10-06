@@ -15,6 +15,7 @@ SCENARIOS = {
     "ingenuo_vs_aprendiz": (("ingenuo", "aprendiz", "direto", "ingenuo"),),
     "aprendiz_vs_fera_basica": (("aprendiz", "fera_basica", "direto", "fera_basica"),),
     "fera_basica_vs_aprendiz": (("fera_basica", "aprendiz", "direto", "fera_basica"),),
+    "aprendiz_vs_aprendiz": (("aprendiz", "aprendiz", "direto", "aprendiz"),),
 }
 
 
