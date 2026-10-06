@@ -16,6 +16,14 @@ SCENARIOS = {
     "aprendiz_vs_fera_basica": (("aprendiz", "fera_basica", "direto", "fera_basica"),),
     "fera_basica_vs_aprendiz": (("fera_basica", "aprendiz", "direto", "fera_basica"),),
     "aprendiz_vs_aprendiz": (("aprendiz", "aprendiz", "direto", "aprendiz"),),
+    "treino_aprendiz_vs_ingenuo": (
+        ("aprendiz", "ingenuo", "exploracao", "ingenuo", 0.25),
+        ("aprendiz", "ingenuo", "neutralizacao", "ingenuo", 0.0),
+    ),
+    "treino_ingenuo_vs_aprendiz": (
+        ("ingenuo", "aprendiz", "exploracao", "ingenuo", 0.25),
+        ("ingenuo", "aprendiz", "neutralizacao", "ingenuo", 0.0),
+    ),
 }
 
 
@@ -45,6 +53,7 @@ def _progress_row(partida, phase, opponent, phase_match, counts, phase_counts, w
         "fase": phase,
         "oponente": opponent,
         "fase_partida": phase_match,
+        "epsilon": learning._EPSILON_APRENDIZ,
         "J1": counts["J1"],
         "V": counts["V"],
         "J2": counts["J2"],
@@ -121,6 +130,12 @@ def executar_experimento(name, phases, rounds_per_phase=100, root=DEFAULT_ROOT, 
 
     learning.resetar_aprendizado()
     learning.configurar_persistencia(episodes_path, q_path)
+
+    def aplicar_epsilon(phase_tuple):
+        if len(phase_tuple) > 4 and phase_tuple[4] is not None:
+            learning.configurar_epsilon(phase_tuple[4])
+
+    aplicar_epsilon(phases[0])
     counts = {"J1": 0, "V": 0, "J2": 0}
     rows = []
     first_opponent = phases[0][3]
@@ -129,7 +144,9 @@ def executar_experimento(name, phases, rounds_per_phase=100, root=DEFAULT_ROOT, 
     partida = 0
 
     try:
-        for j1_name, j2_name, phase, opponent in phases:
+        for phase_tuple in phases:
+            j1_name, j2_name, phase, opponent = phase_tuple[:4]
+            aplicar_epsilon(phase_tuple)
             learning.configurar_contexto(name, phase, opponent)
             phase_counts = {"J1": 0, "V": 0, "J2": 0}
             for phase_match in range(1, rounds_per_phase + 1):

@@ -37,18 +37,24 @@ _Q = treinar()
 _Q_APRENDIZ = {}
 _HISTORICO_APRENDIZ = {X: [], O: []}
 _EPSILON_APRENDIZ = 0.0
-_RECOMPENSAS_APRENDIZ = {"vitoria": 4.0, "empate": 2.0, "derrota": -4.0}
+_RECOMPENSAS_APRENDIZ = {"vitoria": 2.0, "empate": 1.0, "derrota": -5.0}
 _EPISODIO_APRENDIZ = 0
 _PERSISTENCIA_APRENDIZ = {"episodes": None, "q": None}
 _CONTEXTO_APRENDIZ = {"experiment": None, "phase": "direto", "opponent": None}
 
 
+def configurar_epsilon(valor: float) -> None:
+    global _EPSILON_APRENDIZ
+    _EPSILON_APRENDIZ = float(valor)
+
+
 def resetar_aprendizado() -> None:
-    global _EPISODIO_APRENDIZ
+    global _EPISODIO_APRENDIZ, _EPSILON_APRENDIZ
     _Q_APRENDIZ.clear()
     for historico in _HISTORICO_APRENDIZ.values():
         historico.clear()
     _EPISODIO_APRENDIZ = 0
+    _EPSILON_APRENDIZ = 0.0
 
 
 def configurar_persistencia(episodes_path, q_path=None) -> None:

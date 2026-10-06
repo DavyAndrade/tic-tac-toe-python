@@ -79,6 +79,15 @@ class TestAprendiz(unittest.TestCase):
     def test_epsilon_zero_por_decisao(self):
         self.assertEqual(learning._EPSILON_APRENDIZ, 0.0)
 
+    def test_configurar_epsilon_altera_e_resetar_restaura(self):
+        learning.resetar_aprendizado()
+        learning.configurar_epsilon(0.25)
+
+        self.assertEqual(learning._EPSILON_APRENDIZ, 0.25)
+
+        learning.resetar_aprendizado()
+        self.assertEqual(learning._EPSILON_APRENDIZ, 0.0)
+
     def test_resetar_aprendizado_limpa_tabela_e_historicos(self):
         learning.resetar_aprendizado()
         learning._Q_APRENDIZ[(main.tab_vazio(), main.X)] = {4: (2.0, 1)}
@@ -114,7 +123,7 @@ class TestAprendiz(unittest.TestCase):
 
         learning.aprendiz.on_game_end(main.X, main.X)
 
-        self.assertEqual(learning._Q_APRENDIZ[state][cell], (4.0, 1))
+        self.assertEqual(learning._Q_APRENDIZ[state][cell], (2.0, 1))
         self.assertEqual(learning._HISTORICO_APRENDIZ[main.X], [])
 
     def test_aprendiz_aplica_empate_derrota_e_media_incremental(self):
@@ -129,13 +138,13 @@ class TestAprendiz(unittest.TestCase):
         learning.aprendiz(board, main.X, random.Random(0))
         learning.aprendiz.on_game_end(main.X, main.X)
 
-        self.assertEqual(learning._Q_APRENDIZ[state][cell], (3.0, 2))
+        self.assertEqual(learning._Q_APRENDIZ[state][cell], (1.5, 2))
 
         learning.aprendiz(board, main.O, random.Random(0))
         state_o, cell_o = learning._HISTORICO_APRENDIZ[main.O][0]
         learning.aprendiz.on_game_end(main.O, main.X)
 
-        self.assertEqual(learning._Q_APRENDIZ[state_o][cell_o], (-4.0, 1))
+        self.assertEqual(learning._Q_APRENDIZ[state_o][cell_o], (-5.0, 1))
 
     def test_aprendiz_persiste_episodio_em_jsonl(self):
         import random
@@ -154,7 +163,7 @@ class TestAprendiz(unittest.TestCase):
 
         self.assertEqual(episode["schema_version"], 1)
         self.assertEqual(episode["player"], main.X)
-        self.assertEqual(episode["reward"], 4)
+        self.assertEqual(episode["reward"], 2)
         self.assertEqual(len(episode["moves"]), 1)
 
     def test_aprendiz_salva_e_carrega_tabela_q(self):
@@ -171,7 +180,7 @@ class TestAprendiz(unittest.TestCase):
 
             learning.carregar_q(q_path)
 
-            self.assertEqual(learning._Q_APRENDIZ[state][cell], (4.0, 1))
+            self.assertEqual(learning._Q_APRENDIZ[state][cell], (2.0, 1))
 
     def test_aprendiz_sem_persistencia_nao_cria_arquivos(self):
         import random
@@ -339,6 +348,26 @@ class TestAprendiz(unittest.TestCase):
         self.assertEqual(variant["directory"].parent.name, "rodadas_1_eps0")
         self.assertNotEqual(base["directory"], variant["directory"])
 
+    def test_runner_aplica_epsilon_por_fase_e_grava_no_progresso(self):
+        import run_aprendizado
+
+        scenario = (
+            ("aprendiz", "ingenuo", "exploracao", "ingenuo", 0.25),
+            ("aprendiz", "ingenuo", "neutralizacao", "ingenuo", 0.0),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            result = run_aprendizado.executar_experimento(
+                "treino", scenario, rounds_per_phase=2, root=directory
+            )
+            progress = run_aprendizado.carregar_progresso(result["progress"])
+
+        self.assertEqual(progress[0]["epsilon"], 0.25)
+        self.assertTrue(all(r["epsilon"] == 0.25 for r in progress[1:3]))
+        self.assertTrue(all(r["epsilon"] == 0.0 for r in progress[3:5]))
+        self.assertEqual(progress[2]["fase"], "exploracao")
+        self.assertEqual(progress[3]["fase"], "neutralizacao")
+        self.assertEqual(progress[4]["partida"], 4)
+
     def test_runner_executa_todos_os_confrontos_diretos(self):
         import run_aprendizado
 
@@ -348,6 +377,8 @@ class TestAprendiz(unittest.TestCase):
             "aprendiz_vs_fera_basica",
             "fera_basica_vs_aprendiz",
             "aprendiz_vs_aprendiz",
+            "treino_aprendiz_vs_ingenuo",
+            "treino_ingenuo_vs_aprendiz",
         }
         with tempfile.TemporaryDirectory() as directory:
             results = run_aprendizado.executar_matriz(
