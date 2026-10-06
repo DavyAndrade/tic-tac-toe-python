@@ -6,7 +6,7 @@
 - Semente: 42
 - Rodadas: 100,000
 - Recompensa: vitoria +2, empate +1, derrota -5
-- epsilon: 0.0 (exploracao apenas pelo desempate aleatorio de estados zerados)
+- epsilon: 0.1 (10% das jogadas sempre aleatorias)
 
 Dados: `experiments/learning/rodadas_100000/ingenuo_vs_aprendiz/`
 
@@ -14,54 +14,47 @@ Dados: `experiments/learning/rodadas_100000/ingenuo_vs_aprendiz/`
 
 | Partida | J1 (ingenuo) | V | J2 (aprendiz) |
 |---------|--------------|---|---------------|
-| 1,000 | 370 | 197 | 433 |
-| 10,000 | 1,492 | 2,748 | 5,760 |
-| 50,000 | 5,396 | 14,862 | 29,742 |
-| 100,000 | 10,160 | 29,871 | 59,969 |
+| 1,000 | 441 | 192 | 367 |
+| 10,000 | 1,980 | 2,205 | 5,815 |
+| 50,000 | 5,116 | 7,779 | 37,105 |
+| 100,000 | 7,487 | 13,708 | 78,805 |
 
 ## Evolucao por janela de 10,000 partidas (aprendiz = J2)
 
 | Janela | V | E | D | Aproveitamento |
 |--------|---|---|---|----------------|
-| 1-10,000 | 5,760 | 2,748 | 1,492 | 85.1% |
-| 10,001-20,000 | 6,096 | 2,978 | 926 | 90.7% |
-| 20,001-30,000 | 6,023 | 3,043 | 934 | 90.7% |
-| 30,001-40,000 | 5,991 | 2,954 | 1,055 | 89.5% |
-| 40,001-50,000 | 5,872 | 3,139 | 989 | 90.1% |
-| 50,001-60,000 | 6,157 | 2,887 | 956 | 90.4% |
-| 60,001-70,000 | 5,896 | 3,100 | 1,004 | 90.0% |
-| 70,001-80,000 | 6,074 | 2,969 | 957 | 90.4% |
-| 80,001-90,000 | 6,001 | 3,084 | 915 | 90.8% |
-| 90,001-100,000 | 6,099 | 2,969 | 932 | 90.7% |
+| 1-10,000 | 5,815 | 2,205 | 1,980 | 80% |
+| 10,001-20,000 | 7,268 | 1,658 | 1,074 | 89% |
+| 20,001-30,000 | 7,830 | 1,380 | 790 | 92% |
+| 30,001-40,000 | 8,035 | 1,297 | 668 | 93% |
+| 40,001-50,000 | 8,157 | 1,239 | 604 | 94% |
+| 50,001-60,000 | 8,301 | 1,199 | 500 | 95% |
+| 60,001-70,000 | 8,310 | 1,183 | 507 | 95% |
+| 70,001-80,000 | 8,357 | 1,168 | 475 | 95% |
+| 80,001-90,000 | 8,407 | 1,158 | 435 | 96% |
+| 90,001-100,000 | 8,325 | 1,221 | 454 | 95% |
 
-Leitura: em O o aprendizado sobe de 85% para ~90% e estabiliza ja na
-segunda janela. Contra a versao epsilon 0.1 (historico do Git: 7,487 derrotas
-/ 13,708 empates / 78,805 vitorias, 92.5% de aproveitamento): epsilon 0
-rendeu menos aqui — menos vitorias (59,969 vs 78,805), mais derrotas
-(10,160 vs 7,487) e aproveitamento 90.0% vs 92.5%. Sem exploracao aleatoria
-o agente em O explora menos as linhas do ingenuo e converge rapido para
-poucas respostas.
+Leitura: em O o aprendizado e mais lento que em X — comeca em 80% e sobe
+gradualmente ate 95-96% por volta da partida 60,000. A curva em
+`rodadas_100000/ingenuo_vs_aprendiz/progress.svg` mostra a virada: J1 lidera
+no inicio, mas J2 ultrapassa o acumulado na partida 1,679 e nunca mais perde.
 
 ## Tabela Q final
 
 | Estados | Visitas |
 |---------|---------|
-| 1,070 | 350,088 |
-
-Contra 2,076 estados da versao epsilon 0.1: politica concentrada pela falta
-de exploracao fixa.
+| 2,076 | 336,389 |
 
 ## Grafico
 
-`rodadas_100000/ingenuo_vs_aprendiz/progress.svg` — series `J1 (Ingenuo)` /
-`V` / `J2 (Aprendiz)` por partida. Gerado por `matplotlib` a partir de
-`progress.jsonl`.
+`rodadas_100000/ingenuo_vs_aprendiz/progress.svg` — series J1/V/J2 por
+partida, eixo X numerado. Gerado por `matplotlib` a partir de `progress.jsonl`.
 
 ## Arquivos
 
 ```
 experiments/learning/rodadas_100000/ingenuo_vs_aprendiz/
-├── episodes.jsonl    # 30M — cada decisao (estado, acao), resultado, recompensa
+├── episodes.jsonl    # 29M — cada decisao (estado, acao), resultado, recompensa
 ├── progress.jsonl    # 18M — linha 0 + 1 linha por partida (100,001 linhas)
 ├── q_table.json      # snapshot da tabela Q (schema_version 1)
 └── progress.svg      # grafico acumulado
@@ -76,5 +69,6 @@ experiments/learning/rodadas_100000/ingenuo_vs_aprendiz/
   --partida 100000
 ```
 
-Execucao deterministica (seed 42): regenera identico. A versao anterior com
-epsilon 0.1 esta no historico do Git (commit `bd4ffa3` e anteriores).
+Execucao deterministica (seed 42): regenera identico. Versao de 1,000
+rodadas preservada em `rodadas_1000/` e documentada em
+`ingenuo_vs_aprendiz.md`.

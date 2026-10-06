@@ -109,8 +109,9 @@ def gerar_svg(progress_path, svg_path, title, j1_name=None, j2_name=None) -> Pat
     return svg_path
 
 
-def executar_experimento(name, phases, rounds_per_phase=100, root=DEFAULT_ROOT, seed=42):
-    output = Path(root) / f"rodadas_{rounds_per_phase}" / name
+def executar_experimento(name, phases, rounds_per_phase=100, root=DEFAULT_ROOT, seed=42, variant=None):
+    suffix = f"_{variant}" if variant else ""
+    output = Path(root) / f"rodadas_{rounds_per_phase}{suffix}" / name
     output.mkdir(parents=True, exist_ok=True)
     episodes_path = output / "episodes.jsonl"
     progress_path = output / "progress.jsonl"
@@ -172,9 +173,9 @@ def executar_experimento(name, phases, rounds_per_phase=100, root=DEFAULT_ROOT, 
     }
 
 
-def executar_matriz(rounds_per_phase=100, root=DEFAULT_ROOT, seed=42):
+def executar_matriz(rounds_per_phase=100, root=DEFAULT_ROOT, seed=42, variant=None):
     return {
-        name: executar_experimento(name, phases, rounds_per_phase, root, seed)
+        name: executar_experimento(name, phases, rounds_per_phase, root, seed, variant)
         for name, phases in SCENARIOS.items()
     }
 
@@ -183,6 +184,7 @@ def main_cli():
     parser = argparse.ArgumentParser()
     parser.add_argument("--rounds", type=int, default=100)
     parser.add_argument("--root", default=str(DEFAULT_ROOT))
+    parser.add_argument("--variant", help="sufixo do diretorio, ex.: eps0 -> rodadas_<N>_eps0")
     parser.add_argument("--scenario", choices=("all", *SCENARIOS), default="all")
     parser.add_argument("--progress")
     parser.add_argument("--partida", type=int)
@@ -195,9 +197,12 @@ def main_cli():
         return
 
     if args.scenario == "all":
-        executar_matriz(args.rounds, args.root)
+        executar_matriz(args.rounds, args.root, variant=args.variant)
     else:
-        executar_experimento(args.scenario, SCENARIOS[args.scenario], args.rounds, args.root)
+        executar_experimento(
+            args.scenario, SCENARIOS[args.scenario], args.rounds, args.root,
+            variant=args.variant,
+        )
 
 
 if __name__ == "__main__":

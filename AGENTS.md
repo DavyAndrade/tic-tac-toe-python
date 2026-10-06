@@ -13,6 +13,8 @@
 - External strategy registrations write cwd-relative ignored `strategies.json`; use `python main.py register NAME file.py:function`.
 
 ## Experiments
+- **Preserve experiment data always.** Never overwrite `experiments/` outputs (learning datasets, reports, `basic/` and `minimax/` markdown). A new configuration (epsilon, rounds, opponent, strategy) gets a NEW directory/report: `run_aprendizado.py --variant NAME` writes `rodadas_<N>_<NAME>/` and reports get the `_<NAME>` suffix (e.g. `rodadas_1000_eps0/`, `aprendiz_vs_ingenuo_eps0.md`). Rerunning the identical config (same seed) is the only overwrite allowed.
+- `python run_aprendizado.py --rounds N [--scenario NAME] [--variant NAME]` runs aprendiz experiments; `--progress <jsonl> --partida N` queries a match without rerunning.
 - `python run_torneio.py X_STRATEGY O_STRATEGY ROUNDS` stores every game in memory and writes ignored `results_*.txt`; use a small round count for checks. No arguments run four 100,000-game tournaments.
 - `python run_progressivo.py X_STRATEGY O_STRATEGY` always runs 1,000,000 games in eight processes and overwrites tracked `experiments/basic/` or `experiments/minimax/` markdown. Run only for requested full experiments.
 - Generated `results_*.txt` and `results_*.json` are ignored. Do not force-add them; GitHub rejects the full 1M JSON outputs for size.

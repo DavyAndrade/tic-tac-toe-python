@@ -323,6 +323,22 @@ class TestAprendiz(unittest.TestCase):
         )
         self.assertEqual(visits, 1)
 
+    def test_runner_variante_usa_diretorio_proprio(self):
+        import run_aprendizado
+
+        scenario = run_aprendizado.SCENARIOS["aprendiz_vs_ingenuo"]
+        with tempfile.TemporaryDirectory() as directory:
+            base = run_aprendizado.executar_experimento(
+                "base", scenario, rounds_per_phase=1, root=directory
+            )
+            variant = run_aprendizado.executar_experimento(
+                "variante", scenario, rounds_per_phase=1, root=directory, variant="eps0"
+            )
+
+        self.assertEqual(base["directory"].parent.name, "rodadas_1")
+        self.assertEqual(variant["directory"].parent.name, "rodadas_1_eps0")
+        self.assertNotEqual(base["directory"], variant["directory"])
+
     def test_runner_executa_os_quatro_confrontos_diretos(self):
         import run_aprendizado
 

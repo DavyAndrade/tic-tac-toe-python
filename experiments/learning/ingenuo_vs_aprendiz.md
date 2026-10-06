@@ -6,56 +6,53 @@
 - Semente: 42
 - Rodadas: 1,000
 - Recompensa: vitoria +2, empate +1, derrota -5
-- epsilon: 0.0 (exploracao apenas pelo desempate aleatorio de estados zerados)
-
-Dados: `experiments/learning/rodadas_1000/ingenuo_vs_aprendiz/`
+- epsilon: 0.1 (10% das jogadas sempre aleatorias)
 
 ## Resultado acumulado
 
 | Partida | J1 (ingenuo) | V | J2 (aprendiz) |
 |---------|--------------|---|---------------|
-| 100 | 55 | 19 | 26 |
-| 500 | 223 | 87 | 190 |
-| 1,000 | 370 | 197 | 433 |
+| 100 | 50 | 14 | 36 |
+| 500 | 240 | 87 | 173 |
+| 1,000 | 441 | 192 | 367 |
 
 ## Evolucao por janela de 100 partidas (aprendiz = J2)
 
 | Janela | V | E | D | Aproveitamento |
 |--------|---|---|---|----------------|
-| 1-100 | 26 | 19 | 55 | 45% |
-| 101-200 | 34 | 16 | 50 | 50% |
-| 201-300 | 42 | 16 | 42 | 58% |
-| 301-400 | 44 | 20 | 36 | 64% |
-| 401-500 | 44 | 16 | 40 | 60% |
-| 501-600 | 46 | 19 | 35 | 65% |
-| 601-700 | 46 | 23 | 31 | 69% |
-| 701-800 | 56 | 21 | 23 | 77% |
-| 801-900 | 51 | 22 | 27 | 73% |
-| 901-1000 | 44 | 25 | 31 | 69% |
+| 1-100 | 36 | 14 | 50 | 50% |
+| 101-200 | 32 | 15 | 53 | 47% |
+| 201-300 | 33 | 20 | 47 | 53% |
+| 301-400 | 33 | 18 | 49 | 51% |
+| 401-500 | 39 | 20 | 41 | 59% |
+| 501-600 | 35 | 21 | 44 | 56% |
+| 601-700 | 37 | 18 | 45 | 55% |
+| 701-800 | 43 | 18 | 39 | 61% |
+| 801-900 | 37 | 28 | 35 | 65% |
+| 901-1000 | 42 | 20 | 38 | 62% |
 
-Leitura: como segundo jogador o aprendizado e mais lento — comeca em 45%
-(inferior ao ingenuo puro) e chega a ~70% ate a partida 1,000. Nesta amostra
-curta, epsilon 0 fica atras da versao epsilon 0.1 (56% no total daquela
-versao); a amostra de 100k e a referencia confiavel.
+Leitura: como segundo jogador o ganho e menor (50% para ~62%). Com o
+oponente aleatorio e epsilon em 10%, o agente em O tem menos margem para
+explorar sem custo. A partir da partida 700 a janela fica consistentemente
+acima de 60%.
 
 ## Tabela Q final
 
 | Estados | Visitas |
 |---------|---------|
-| 905 | 3,507 |
+| 1,102 | 3,495 |
 
 ## Grafico
 
-`rodadas_1000/ingenuo_vs_aprendiz/progress.svg` — series `J1 (Ingenuo)` /
-`V` / `J2 (Aprendiz)` por partida. Gerado por `matplotlib` a partir de
-`progress.jsonl`.
+`progress.svg` — series J1/V/J2 por partida, eixo X numerado de 100 em 100.
+Gerado por `matplotlib` a partir de `progress.jsonl`.
 
 ## Arquivos
 
 ```
 experiments/learning/rodadas_1000/ingenuo_vs_aprendiz/
 ├── episodes.jsonl    # cada decisao (estado, acao), resultado, recompensa
-├── progress.jsonl    # linha 0 + 1 linha por partida (1,001 linhas)
+├── progress.jsonl    # linha 0 + 1 linha por partida
 ├── q_table.json      # snapshot da tabela Q (schema_version 1)
 └── progress.svg      # grafico acumulado
 ```
@@ -69,5 +66,4 @@ experiments/learning/rodadas_1000/ingenuo_vs_aprendiz/
   --partida 1000
 ```
 
-Execucao deterministica (seed 42): regenera identico. A versao anterior com
-epsilon 0.1 esta no historico do Git (commit `bd4ffa3` e anteriores).
+Execucao deterministica (seed 42): regenera identico.
