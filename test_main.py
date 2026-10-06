@@ -114,7 +114,7 @@ class TestAprendiz(unittest.TestCase):
 
         learning.aprendiz.on_game_end(main.X, main.X)
 
-        self.assertEqual(learning._Q_APRENDIZ[state][cell], (3.0, 1))
+        self.assertEqual(learning._Q_APRENDIZ[state][cell], (4.0, 1))
         self.assertEqual(learning._HISTORICO_APRENDIZ[main.X], [])
 
     def test_aprendiz_aplica_empate_derrota_e_media_incremental(self):
@@ -129,13 +129,13 @@ class TestAprendiz(unittest.TestCase):
         learning.aprendiz(board, main.X, random.Random(0))
         learning.aprendiz.on_game_end(main.X, main.X)
 
-        self.assertEqual(learning._Q_APRENDIZ[state][cell], (2.0, 2))
+        self.assertEqual(learning._Q_APRENDIZ[state][cell], (3.0, 2))
 
         learning.aprendiz(board, main.O, random.Random(0))
         state_o, cell_o = learning._HISTORICO_APRENDIZ[main.O][0]
         learning.aprendiz.on_game_end(main.O, main.X)
 
-        self.assertEqual(learning._Q_APRENDIZ[state_o][cell_o], (-1.0, 1))
+        self.assertEqual(learning._Q_APRENDIZ[state_o][cell_o], (-4.0, 1))
 
     def test_aprendiz_persiste_episodio_em_jsonl(self):
         import random
@@ -154,7 +154,7 @@ class TestAprendiz(unittest.TestCase):
 
         self.assertEqual(episode["schema_version"], 1)
         self.assertEqual(episode["player"], main.X)
-        self.assertEqual(episode["reward"], 3)
+        self.assertEqual(episode["reward"], 4)
         self.assertEqual(len(episode["moves"]), 1)
 
     def test_aprendiz_salva_e_carrega_tabela_q(self):
@@ -171,7 +171,7 @@ class TestAprendiz(unittest.TestCase):
 
             learning.carregar_q(q_path)
 
-            self.assertEqual(learning._Q_APRENDIZ[state][cell], (3.0, 1))
+            self.assertEqual(learning._Q_APRENDIZ[state][cell], (4.0, 1))
 
     def test_aprendiz_sem_persistencia_nao_cria_arquivos(self):
         import random

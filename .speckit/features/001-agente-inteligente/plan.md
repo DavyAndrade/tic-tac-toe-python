@@ -21,7 +21,7 @@ Responsabilidades do módulo:
 
 - escolher ação ε-greedy;
 - registrar estado e ação;
-- calcular +3, +1 ou -1 (pesos em `_RECOMPENSAS_APRENDIZ`) do ponto de vista do agente;
+- calcular +4, +2 ou -4 (pesos em `_RECOMPENSAS_APRENDIZ`) do ponto de vista do agente;
 - atualizar média incremental após a partida;
 - persistir episódios em JSONL;
 - salvar e carregar snapshot Q em JSON;
