@@ -13,6 +13,7 @@
 - External strategy registrations write cwd-relative ignored `strategies.json`; use `python main.py register NAME file.py:function`.
 
 ## Experiments
+- **All learning-agent experiments run with epsilon 0** (frozen default since the 1M runs; `_EPSILON_APRENDIZ = 0.0`, guarded by `test_epsilon_zero_por_decisao`). Exploration comes only from the random tie-break on unvisited states (EC-003). Datasets made before this rule carry `epsilon: 0.1` in their `q_table.json` and are historical baselines.
 - **Preserve experiment data always.** Never overwrite `experiments/` outputs (learning datasets, reports, `basic/` and `minimax/` markdown). A new configuration (epsilon, rounds, opponent, strategy) gets a NEW directory: `run_aprendizado.py --variant NAME` writes `rodadas_<N>_<NAME>/`. The report markdown lives INSIDE its experiment directory as `<name>.md` (e.g. `rodadas_1000_eps0/aprendiz_vs_ingenuo/aprendiz_vs_ingenuo.md`). Rerunning the identical config (same seed) is the only overwrite allowed.
 - `python run_aprendizado.py --rounds N [--scenario NAME] [--variant NAME]` runs aprendiz experiments; `--progress <jsonl> --partida N` queries a match without rerunning.
 - `python run_torneio.py X_STRATEGY O_STRATEGY ROUNDS` stores every game in memory and writes ignored `results_*.txt`; use a small round count for checks. No arguments run four 100,000-game tournaments.
