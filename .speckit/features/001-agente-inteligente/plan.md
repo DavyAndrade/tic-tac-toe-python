@@ -103,14 +103,16 @@ Carga será explícita. Sem `carregar_q`, agente começa zerado. Escrita será o
 
 ### Confrontos diretos
 
-Dois experimentos independentes, cada um começando com Q vazio:
+Quatro experimentos independentes, cada um começando com Q vazio:
 
 ```text
 aprendiz vs ingenuo
 ingenuo  vs aprendiz
+aprendiz vs fera
+fera     vs aprendiz
 ```
 
-Confrontos com `fera` e currículos de treinamento ficam para fase futura.
+Currículos de treinamento ficam para fase futura.
 
 `fera` é o nome canônico do minimax (`fera_minimax`). `fera_aprendizado` é a estratégia Q pré-treinada existente e fica fora deste escopo; não representa o agente novo zerado. `fera_basica`, outros algoritmos e `humano` ficam para fase posterior.
 
@@ -194,6 +196,6 @@ Execução inicial recomendada: 100 partidas por confronto. Execuções maiores 
 - partida 100 retorna exatamente seus totais;
 - cada confronto direto gera um único `progress.svg` próprio;
 - carga de `q_table.json` reproduz valores aprendidos;
-- os dois experimentos diretos não compartilham Q;
+- os experimentos diretos não compartilham Q;
 - `python -m unittest test_main -v` continua verde;
 - nenhum dado de gráfico é inventado.

@@ -323,12 +323,14 @@ class TestAprendiz(unittest.TestCase):
         )
         self.assertEqual(visits, 1)
 
-    def test_runner_executa_os_dois_confrontos_diretos(self):
+    def test_runner_executa_os_quatro_confrontos_diretos(self):
         import run_aprendizado
 
         expected = {
             "aprendiz_vs_ingenuo",
             "ingenuo_vs_aprendiz",
+            "aprendiz_vs_fera",
+            "fera_vs_aprendiz",
         }
         with tempfile.TemporaryDirectory() as directory:
             results = run_aprendizado.executar_matriz(

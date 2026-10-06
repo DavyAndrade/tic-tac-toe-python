@@ -13,6 +13,8 @@ DEFAULT_ROOT = Path("experiments/learning")
 SCENARIOS = {
     "aprendiz_vs_ingenuo": (("aprendiz", "ingenuo", "direto", "ingenuo"),),
     "ingenuo_vs_aprendiz": (("ingenuo", "aprendiz", "direto", "ingenuo"),),
+    "aprendiz_vs_fera": (("aprendiz", "fera", "direto", "fera"),),
+    "fera_vs_aprendiz": (("fera", "aprendiz", "direto", "fera"),),
 }
 
 

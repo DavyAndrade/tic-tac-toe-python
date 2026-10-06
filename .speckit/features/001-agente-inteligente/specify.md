@@ -6,7 +6,7 @@ Feature: estratégia que começa com zero conhecimento, aprende entre partidas e
 
 Código "zerado": tabela de valores vazia. A cada partida em que joga, registra suas jogadas `(estado, célula)` e ao fim aplica recompensa terminal — **+2 venceu, +1 empatou, −5 perdeu** — a todas as jogadas daquela partida, influenciando escolhas futuras.
 
-O foco inicial será `aprendiz` vs `ingenuo` e `ingenuo` vs `aprendiz`. Em v1 executam-se apenas esses dois confrontos diretos; currículos e confrontos com `fera` ficam para fase futura. Cada experimento terá dataset, tabela, estatísticas e gráfico próprios; cada experimento começa com agente zerado.
+O foco inicial será `aprendiz` vs `ingenuo` e `ingenuo` vs `aprendiz`. Em v1 executam-se os quatro confrontos diretos (`ingenuo` e `fera` como oponentes, em ambos os lados); currículos ficam para fase futura. Cada experimento terá dataset, tabela, estatísticas e gráfico próprios; cada experimento começa com agente zerado.
 
 ## Requisitos funcionais
 
@@ -20,7 +20,7 @@ O foco inicial será `aprendiz` vs `ingenuo` e `ingenuo` vs `aprendiz`. Em v1 ex
 - **FR-008** — Ao fim de cada partida, persistir em JSONL as decisões do agente, estado, ação, jogador, resultado e recompensa.
 - **FR-009** — Persistir tabela aprendida em JSON versionado, com valores, quantidade de visitas, algoritmo e número de episódios.
 - **FR-010** — Permitir carregar tabela persistida explicitamente para continuar treinamento; execução sem carga começa zerada.
-- **FR-011** — Executar os dois confrontos diretos do escopo inicial: `aprendiz` vs `ingenuo` e `ingenuo` vs `aprendiz`.
+- **FR-011** — Executar os quatro confrontos diretos do escopo: `aprendiz` vs `ingenuo`, `ingenuo` vs `aprendiz`, `aprendiz` vs `fera` e `fera` vs `aprendiz`.
 - **FR-012** — Persistir uma linha inicial da partida `0` com `J1=0`, `V=0`, `J2=0`, seguida de uma linha após cada partida com contagens cumulativas e vencedor da partida.
 - **FR-013** — Gerar **um gráfico SVG por confronto ordenado**, a partir das linhas persistidas, com eixo X = número da partida e séries cumulativas `J1`, `V` e `J2`.
 - **FR-014** — Permitir consultar estatísticas exatas de qualquer partida persistida, incluindo a partida 100, sem reexecutar o experimento.
@@ -43,7 +43,7 @@ O foco inicial será `aprendiz` vs `ingenuo` e `ingenuo` vs `aprendiz`. Em v1 ex
 - **SC-004** — Cada confronto configurado executa 100 partidas sem exceção, com agente em J1 e J2 quando aplicável.
 - **SC-005** — Estado zerado produz jogada válida sempre (nunca célula ocupada, nunca trava).
 - **SC-006** — JSONL contém exatamente uma linha de progresso para a partida 0 e uma linha para cada partida executada; linha 100 é recuperável quando 100 partidas existem.
-- **SC-007** — Os dois confrontos diretos produzem arquivos distintos e não compartilham Q.
+- **SC-007** — Os confrontos diretos produzem arquivos distintos e não compartilham Q.
 - **SC-009** — Cada experimento produz exatamente um gráfico SVG derivado do seu próprio progresso persistido, contendo séries J1, V e J2 e marcador de transição quando aplicável.
 - **SC-011** — Tabela JSON carregada reproduz decisões aprendidas sem executar novo treinamento.
 
@@ -66,10 +66,10 @@ O foco inicial será `aprendiz` vs `ingenuo` e `ingenuo` vs `aprendiz`. Em v1 ex
 - Mudar contrato das 4 estratégias existentes.
 - Jogo generalizado (n×n).
 - Banco de dados ou dashboard web interativo; v1 usa JSONL, JSON e SVG.
-- Matriz completa de adversários; em v1 o único oponente é `ingenuo`, e `fera` entra na fase futura.
+- Matriz completa de adversários; em v1 os oponentes são `ingenuo` e `fera`, e currículos ficam na fase futura.
 - `fera_aprendizado` como adversário; ele é a estratégia Q pré-treinada existente, não o agente novo zerado.
 
-### Fase futura — currículos e feras
+### Fase futura — currículos
 
 Requisitos, critérios e edge cases adiados para a fase seguinte; ids preservados, sem renumeração.
 
