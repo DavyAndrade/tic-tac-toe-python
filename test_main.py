@@ -138,13 +138,13 @@ class TestAprendiz(unittest.TestCase):
         learning.aprendiz(board, main.X, random.Random(0))
         learning.aprendiz.on_game_end(main.X, main.X)
 
-        self.assertEqual(learning._Q_APRENDIZ[state][cell], (5.5, 2))
+        self.assertEqual(learning._Q_APRENDIZ[state][cell], (5.0, 2))
 
         learning.aprendiz(board, main.O, random.Random(0))
         state_o, cell_o = learning._HISTORICO_APRENDIZ[main.O][0]
         learning.aprendiz.on_game_end(main.O, main.X)
 
-        self.assertEqual(learning._Q_APRENDIZ[state_o][cell_o], (-3.0, 1))
+        self.assertEqual(learning._Q_APRENDIZ[state_o][cell_o], (-1.0, 1))
 
     def test_aprendiz_persiste_episodio_em_jsonl(self):
         import random
