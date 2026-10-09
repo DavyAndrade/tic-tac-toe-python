@@ -4,7 +4,7 @@ Feature: estratégia que começa com zero conhecimento, aprende entre partidas e
 
 ## Visão
 
-Código "zerado": tabela de valores vazia. A cada partida em que joga, registra suas jogadas `(estado, célula)` e ao fim aplica recompensa terminal — **+10 venceu, +0 empatou, −1 perdeu** (peso vigente — `eps0_pes1001`, empate sem recompensa: só vitórias pagam; baseline +2/+1/−5 (`eps0_pes215`) segue campeã, com `eps0_pes311`, `eps0_pes424`, `eps0_pes1011` e `eps0_pes1013` descartadas) — a todas as jogadas daquela partida, influenciando escolhas futuras.
+Código "zerado": tabela de valores vazia. A cada partida em que joga, registra suas jogadas `(estado, célula)` e ao fim aplica recompensa terminal — **+10 venceu, +0 empatou, −3 perdeu** (peso vigente — `eps0_pes1003`, empate sem recompensa + derrota suavizada; baseline +2/+1/−5 (`eps0_pes215`) segue campeã, com `eps0_pes311`, `eps0_pes424`, `eps0_pes1011`, `eps0_pes1013` e `eps0_pes1001` descartadas) — a todas as jogadas daquela partida, influenciando escolhas futuras.
 
 O foco inicial será `aprendiz` vs `ingenuo` e `ingenuo` vs `aprendiz`. Em v1 executam-se os quatro confrontos diretos (`ingenuo` e `fera_basica` como oponentes, em ambos os lados); currículos ficam para fase futura. Cada experimento terá dataset, tabela, estatísticas e gráfico próprios; cada experimento começa com agente zerado.
 
@@ -12,7 +12,7 @@ O foco inicial será `aprendiz` vs `ingenuo` e `ingenuo` vs `aprendiz`. Em v1 ex
 
 - **FR-001** — Tabela de valores `(tabuleiro, jogador) -> {célula: (soma, n)}` inicia vazia. Zero conhecimento.
 - **FR-002** — Durante a partida, registra cada jogada feita: par `(estado, célula)`.
-- **FR-003** — Ao fim de cada partida em que participou, aplica a recompensa terminal a **todas** as jogadas registradas daquela partida: +10 (agente venceu), +0 (empate), −1 (agente perdeu); pesos em `_RECOMPENSAS_APRENDIZ`.
+- **FR-003** — Ao fim de cada partida em que participou, aplica a recompensa terminal a **todas** as jogadas registradas daquela partida: +10 (agente venceu), +0 (empate), −3 (agente perdeu); pesos em `_RECOMPENSAS_APRENDIZ`.
 - **FR-004** — Escolha ε-greedy: com probabilidade ε joga aleatoriamente (usa o `rng` fornecido); caso contrário, maior valor, desempate aleatório via `rng`.
 - **FR-005** — Atualização por média incremental: `Q ← Q + (recompensa − Q) / N`, com `N` por par (estado, célula).
 - **FR-006** — `resetar_aprendizado()` esvazia a tabela e os históricos.
