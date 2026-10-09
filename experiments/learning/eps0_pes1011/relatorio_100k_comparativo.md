@@ -53,6 +53,40 @@ mais tempo em um ramo", a alavanca que funcionou foi o curriculo epsilon
    (ex.: pesos 10/1/−1 só na fase exploracao, trocar para 2/1/−5 na neutralizacao)
    para medir se o bônus alto ajuda a descoberta sem poluir a politica final.
 
+## Masterização da árvore — validação da ideia
+
+Ideia: os pesos de recompensa devem fazer o guloso permanecer numa árvore e
+masterizá-la, em vez de ir para outra e recomeçar a exploração. Medido nos
+`episodes.jsonl` / `q_table.json` dos dois lados (aprendiz_vs_ingenuo, 100k):
+
+| Métrica | 2/1/−5 (baseline) | 10/1/−1 |
+|---------|-------------------|---------|
+| Abertura usada | canto0 em 100% dos jogos | canto0 em 100% dos jogos |
+| Migrações de abertura (jogada 1 muda) | 0 em 99.999 | 0 em 99.999 |
+| Estados distintos explorados | 300 | 220 |
+| Distribuição por ply (0/2/4/6/8 marcas) | 1 / 8 / 64 / 158 / 69 | 1 / 8 / 43 / 115 / 53 |
+| 2ª jogada do X (células distintas) | 8 (1,2,3,4,5,6,7,8) | 4 (2,4,6,8) |
+| Estados com todas as ações testadas | 80/300 (27%) | 55/220 (25%) |
+| Primeiros-aparecimentos por janela | 300 na janela 0, **+0 nas 9 seguintes** | 220 na janela 0, **+0 nas 9 seguintes** |
+| Aproveitamento (V+E) | 98,5% | 87,3% |
+
+Leitura:
+
+1. **A pegada na árvore já é estrutural, não vem da recompensa.** Com epsilon 0
+   e política gulosa, as duas configurações ficam 100% na mesma abertura, com
+   0 migrações, e fecham toda a exploração na primeira janela de 10 mil jogos —
+   depois disso nenhum estado novo aparece em nenhuma das duas. O cenário temido
+   ("ir para outra árvore e começar a explorar tudo de novo") **nunca ocorre**.
+2. **O peso 10/1/−1 estreita a exploração sem ganhar nada:** menos estados
+   (220 vs 300), menos ramos na 2ª jogada (4 vs 8 células), mesmo grau de
+   saturação (~26%), porém 9pp a menos de vitórias. Masterizou menos, não mais.
+3. **Conclusão:** parâmetros de recompensa não são a alavanca de persistência
+   em árvore aqui — a persistência já vem do guloso + epsilon 0. Os pesos só
+   decidem quão largo é o explorado dentro da árvore, e 2/1/−5 achou os ramos
+   que vencem mais. Ideia validada como *não necessária* neste arranjo; se o
+   objetivo for variar a largura da exploração dentro da árvore, 10/1/−1 é o
+   knob (mais estreito), mas até agora sempre com desempenho pior.
+
 ## Comandos
 
 ```bash
