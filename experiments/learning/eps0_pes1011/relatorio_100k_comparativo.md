@@ -87,6 +87,15 @@ Leitura:
    objetivo for variar a largura da exploração dentro da árvore, 10/1/−1 é o
    knob (mais estreito), mas até agora sempre com desempenho pior.
 
+## Execucao de 500k (mesmo config)
+
+`rodadas_500000/aprendiz_vs_ingenuo/`: **368.694V / 69.192E / 62.114D**
+(73,7% de vitorias, 87,6% sem derrota) — identico em taxa ao 100k (73,2% /
+87,3%), planissimo janela a janela (87,2–87,9%), **mesmos 220 estados na
+tabela Q** (zero crescimento em 400k partidas extras), 0 migracoes, ultima
+derrota p499.998. Confirma em escala: o gap para o baseline e estrutural na
+recompensa, nao de amostragem.
+
 ## Comandos
 
 ```bash
