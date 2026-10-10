@@ -58,6 +58,14 @@ perda vem do +10 ou da derrota −5. Se não houver mais interesse em pesos,
 fecha-se a série: 2/1/−5 é o campeão entre 2/1/−5, 3/1/−1, 4/2/−4, 10/1/−1,
 10/1/−3.
 
+## Execucao de 500k (mesmo config)
+
+`rodadas_500000/aprendiz_vs_ingenuo/`: **377.529V / 67.469E / 55.002D**
+(75,5% de vitorias, 89,0% sem derrota) — mesmas taxas do 100k. **Nao para de
+perder:** 0 janelas de 1.000 com zero derrotas em 500k, ~110 derrotas/mil
+constantes do inicio ao fim, ultima derrota p499.998, maior sequencia sem
+derrota de apenas 96 jogos. Mesmos 224 estados da tabela Q, 0 migracoes.
+
 ## Comandos
 
 ```bash
